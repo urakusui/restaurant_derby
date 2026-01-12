@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>王将ダービー 完全修正版</title>
+<title>裏KUSUI presents 王将ダービー</title>
 <style>
 /* 基本設定 */
 body { font-family: sans-serif; background: #f5f5f5; padding: 15px; margin: 0; color: #333; }
@@ -30,6 +30,9 @@ body { font-family: sans-serif; background: #f5f5f5; padding: 15px; margin: 0; c
   border-bottom: 2px solid #eee;
   padding-bottom: 10px;
 }
+.header-row h2 {
+  flex: 1; /* タイトルが左に寄りつつ？ボタンは右に配置 */
+}
 h2, h3 { margin: 0; color: #B71C1C; }
 
 /* ？ボタン（確実に表示されるスタイル） */
@@ -54,10 +57,10 @@ button:active { transform: scale(0.98); }
 /* 削除ボタン（小さく赤く） */
 .btn-del { 
   background: #f44336; 
-  width: auto;             /* 幅を自動調整 */
-  margin-left: 10px;       /* 文字との間隔 */
-  padding: 5px 15px; 
-  font-size: 14px; 
+  margin-left: 10px;
+  padding: 5px 12px;
+  font-size: 14px;
+  cursor: pointer;
 }
 
 /* リスト表示エリア */
@@ -115,7 +118,7 @@ th { background: #eee; }
     <button type="button" class="btn-help" onclick="toggleModal()">？</button>
   </div>
 
-  <input id="shopName" placeholder="お店の名前（例：大阪王将）">
+  <input id="shopName" placeholder="店舗名（例：大阪駅前第2ビル）">
   <input id="menuName" placeholder="メニュー名（例：餃子）">
   <button type="button" class="btn-add" onclick="addMenu()">＋ メニューを追加</button>
   
@@ -183,11 +186,9 @@ const $ = (id) => document.getElementById(id);
 
 /* --- 画面遷移関数 --- */
 function show(screenId) {
-  // すべての画面を隠す
   ['screen-menu','screen-race','screen-player','screen-predict','screen-result','screen-ticket'].forEach(id => {
     $(id).classList.add('hidden');
   });
-  // 指定した画面だけ表示
   $(screenId).classList.remove('hidden');
   window.scrollTo(0,0);
 }
@@ -195,23 +196,22 @@ function show(screenId) {
 /* --- ヘルプ（モーダル）開閉 --- */
 function toggleModal() {
   const m = $('modal-help');
-  // hiddenクラスの付け外しで制御
-  if(m.classList.contains('hidden')) {
-    m.classList.remove('hidden');
-  } else {
-    m.classList.add('hidden');
-  }
+  m.classList.toggle('hidden');
 }
 
 /* --- メニュー管理 --- */
 function addMenu() {
   const val = $('menuName').value.trim();
   if(!val) return;
-  // ランダムオッズ生成
   const odds = (Math.random() * 8 + 1.1).toFixed(1);
   menus.push({ name: val, odds: odds });
   $('menuName').value = '';
   renderMenus();
+
+  // ★メニューが3つ以上になったら自動で出走表画面へ遷移★
+  if(menus.length >= 3) {
+    toRaceTable();
+  }
 }
 
 function renderMenus() {
@@ -220,7 +220,6 @@ function renderMenus() {
     list.innerHTML = '<div style="text-align:center; color:#888;">メニューを追加してください</div>';
     return;
   }
-  // ★削除ボタンを表示するHTMLを生成★
   list.innerHTML = menus.map((m, i) => `
     <div class="list-item">
       <span style="font-weight:bold;">${i+1}. ${m.name}</span>
@@ -230,8 +229,8 @@ function renderMenus() {
 }
 
 function removeMenu(index) {
-  menus.splice(index, 1); // 配列から削除
-  renderMenus();          // 再描画
+  menus.splice(index, 1);
+  renderMenus();
 }
 
 /* --- 出走表生成 --- */
@@ -240,14 +239,13 @@ function toRaceTable() {
   
   let html = '<table><tr><th>枠</th><th>メニュー名</th><th>オッズ</th></tr>';
   menus.forEach((m, i) => {
-    // 枠番（1〜8）を計算
     const waku = Math.min(8, Math.floor(i / Math.max(1, menus.length/8)) + 1);
     html += `<tr><td class="waku-${waku}">${i+1}</td><td>${m.name}</td><td>${m.odds}倍</td></tr>`;
   });
   html += '</table>';
   
   $('raceTableArea').innerHTML = html;
-  show('screen-race'); // 画面遷移
+  show('screen-race');
 }
 
 /* --- 参加者管理 --- */
@@ -278,7 +276,6 @@ function startPrediction() {
 }
 
 function setupPredictionScreen() {
-  // 全員の予想が終わったら結果入力へ
   if(currentPlayerIndex >= players.length) {
     setupResultScreen();
     return;
@@ -304,7 +301,6 @@ function renderPredictionUI() {
   }
   $('predictInputs').innerHTML = html;
 
-  // 選択ボタン
   $('menuButtons').innerHTML = menus.map((m, i) => `
     <button type="button" style="margin:4px 0; background:#eee; color:#333; text-align:left;" 
       onclick="selectMenuForPrediction(${i})" ${tempPrediction.includes(i) ? 'disabled style="opacity:0.3"' : ''}>
