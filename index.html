@@ -220,7 +220,7 @@ function nextStepPrediction(){
 
 function startPrediction(){
   if(players.length === 0) return alert("参加者を追加してください");
-  players.push({name:"CPU(料理人)", prediction:[...Array(menus.length).keys()].map(i=>i+1).sort(()=>Math.random()-0.5).slice(0,3)});
+  players.push({name:"岡星精一(CPU)", prediction:[...Array(menus.length).keys()].map(i=>i+1).sort(()=>Math.random()-0.5).slice(0,3)});
   currentPlayer = 0; nextStepPrediction();
 }
 
