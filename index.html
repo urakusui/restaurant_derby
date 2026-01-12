@@ -30,6 +30,10 @@ button {
   border: none;
   border-radius: 4px;
 }
+.choice-btn.used {
+  background: #ccc;
+  color: #666;
+}
 .result-slot {
   cursor: pointer;
 }
@@ -45,7 +49,6 @@ button {
 .ticket-title {
   text-align: center;
   font-weight: bold;
-  margin-bottom: 6px;
 }
 .ticket-sub {
   text-align: center;
@@ -132,6 +135,7 @@ let tempPrediction = [];
 let tempResult = [];
 let activeResultSlot = 0;
 
+/* 共通 */
 function show(id) {
   document.querySelectorAll("[id^='screen']").forEach(d => d.classList.add("hidden"));
   document.getElementById(id).classList.remove("hidden");
@@ -143,9 +147,16 @@ function today() {
 }
 
 function randomRaceName(shop) {
-  const suffix = ["S", "杯", "賞", "記念"];
-  return `第11R ${shop}${suffix[Math.floor(Math.random()*suffix.length)]}`;
+  const s = ["S", "杯", "賞", "記念"];
+  return `第11R ${shop}${s[Math.floor(Math.random()*s.length)]}`;
 }
+
+/* メニュー履歴 */
+function loadMenuHistory() {
+  const h = JSON.parse(localStorage.getItem("menuNameHistory") || "[]");
+  menuHistory.innerHTML = h.map(v => `<option value="${v}">`).join("");
+}
+loadMenuHistory();
 
 /* トップ */
 function clearTopCache() {
@@ -187,13 +198,6 @@ function addMenu() {
   }
 }
 
-
-function loadMenuHistory() {
-  const h = JSON.parse(localStorage.getItem("menuNameHistory") || "[]");
-  menuHistory.innerHTML = h.map(v=>`<option value="${v}">`).join("");
-}
-loadMenuHistory();
-
 function startPlayers() {
   if (menus.length < 3) return alert("メニューを3つ以上追加してください");
   show("screen-player");
@@ -204,16 +208,16 @@ function addPlayer() {
   if (!playerInput.value) return;
   players.push({ name: playerInput.value, prediction: [] });
   playerInput.value = "";
-  playerList.innerHTML = players.map(p=>p.name).join("<br>");
+  playerList.innerHTML = players.map(p => p.name).join("<br>");
 }
 
 /* 予想 */
 function randomPrediction() {
-  return [...menus.keys()].map(i=>i+1).sort(()=>Math.random()-0.5).slice(0,3);
+  return [...menus.keys()].map(i => i + 1).sort(() => Math.random() - 0.5).slice(0, 3);
 }
 
 function startPrediction() {
-  players.push({ name:"伝説の料理人", prediction: randomPrediction() });
+  players.push({ name: "伝説の料理人", prediction: randomPrediction() });
   currentPlayer = 0;
   showPrediction();
 }
@@ -224,11 +228,14 @@ function showPrediction() {
     currentPlayer++;
     return currentPlayer < players.length ? showPrediction() : showResultSelect();
   }
+
   tempPrediction = [];
   slot1.innerText = slot2.innerText = slot3.innerText = "未選択";
-  menuChoices.innerHTML = menus.map((m,i)=>
-    `<button onclick="selectMenu(${i+1})">${i+1}. ${m.name}</button>`
+
+  menuChoices.innerHTML = menus.map((m, i) =>
+    `<button onclick="selectMenu(${i + 1})">${i + 1}. ${m.name}</button>`
   ).join("");
+
   playerTitle.innerText = `予想：${p.name}`;
   show("screen-prediction");
 }
@@ -236,7 +243,7 @@ function showPrediction() {
 function selectMenu(n) {
   if (tempPrediction.includes(n)) return;
   tempPrediction.push(n);
-  [slot1,slot2,slot3][tempPrediction.length-1].innerText = menus[n-1].name;
+  [slot1, slot2, slot3][tempPrediction.length - 1].innerText = menus[n - 1].name;
 }
 
 function savePrediction() {
@@ -251,64 +258,71 @@ function showResultSelect() {
   tempResult = [];
   activeResultSlot = 0;
   rslot1.innerText = rslot2.innerText = rslot3.innerText = "未選択";
-  resultChoices.innerHTML = menus.map((m,i)=>
-    `<button onclick="selectResult(${i+1})">${i+1}. ${m.name}</button>`
+
+  resultChoices.innerHTML = menus.map((m, i) =>
+    `<button onclick="selectResult(${i + 1})">${i + 1}. ${m.name}</button>`
   ).join("");
+
   show("screen-result");
 }
 
-function setActiveSlot(i){ activeResultSlot=i; }
+function setActiveSlot(i) {
+  activeResultSlot = i;
+  document.querySelectorAll(".result-slot").forEach((e, idx) =>
+    e.classList.toggle("active", idx === i)
+  );
+}
 
-function selectResult(n){
-  tempResult[activeResultSlot]=n;
-  [rslot1,rslot2,rslot3].forEach((s,i)=>{
-    s.innerText=tempResult[i]?menus[tempResult[i]-1].name:"未選択";
+function selectResult(n) {
+  tempResult[activeResultSlot] = n;
+  [rslot1, rslot2, rslot3].forEach((s, i) => {
+    s.innerText = tempResult[i] ? menus[tempResult[i] - 1].name : "未選択";
   });
 }
 
 /* 判定 */
-function judge(){
-  if(tempResult.filter(Boolean).length!==3)return alert("未選択があります");
+function judge() {
+  if (tempResult.filter(Boolean).length !== 3) return alert("未選択があります");
 
   raceTitle.innerText = randomRaceName(shopInput.value || "無名店");
   ticketDate.innerText = today();
 
-  ticketResult.innerHTML = tempResult.map((n,i)=>
-    `${i+1}着：${menus[n-1].name}（${menus[n-1].odds}倍）`
+  ticketResult.innerHTML = tempResult.map((n, i) =>
+    `${i + 1}着：${menus[n - 1].name}（${menus[n - 1].odds}倍）`
   ).join("<br>");
 
-  ticketWinners.innerHTML = players.map(p=>{
-    const h=p.prediction.filter((v,i)=>v===tempResult[i]).length;
-    return `${h===3?"◎":h===2?"◯":"✖︎"} ${p.name}`;
+  ticketWinners.innerHTML = players.map(p => {
+    const h = p.prediction.filter((v, i) => v === tempResult[i]).length;
+    return `${h === 3 ? "◎" : h === 2 ? "◯" : "✖︎"} ${p.name}`;
   }).join("<br>");
 
   ticketPredictions.innerHTML =
     "<strong>【予想一覧】</strong><br>" +
     players.map(p =>
-      `・${p.name}：${p.prediction.map(i=>menus[i-1].name).join(" → ")}`
+      `・${p.name}：${p.prediction.map(i => menus[i - 1].name).join(" → ")}`
     ).join("<br>");
 
   show("screen-ticket");
 }
 
 /* 履歴 */
-function saveHistory(){
-  const h=JSON.parse(localStorage.getItem("chukaHistory")||"[]");
-  h.unshift({
-    title: raceTitle.innerText,
-    date: ticketDate.innerText
-  });
-  localStorage.setItem("chukaHistory",JSON.stringify(h));
+function saveHistory() {
+  const h = JSON.parse(localStorage.getItem("chukaHistory") || "[]");
+  h.unshift({ title: raceTitle.innerText, date: ticketDate.innerText });
+  localStorage.setItem("chukaHistory", JSON.stringify(h));
   alert("保存しました");
 }
-function showHistory(){
-  const h=JSON.parse(localStorage.getItem("chukaHistory")||"[]");
-  historyList.innerHTML=h.map(v=>`${v.title}<br>${v.date}`).join("<hr>");
+
+function showHistory() {
+  const h = JSON.parse(localStorage.getItem("chukaHistory") || "[]");
+  historyList.innerHTML = h.map(v => `${v.title}<br>${v.date}`).join("<hr>");
   show("screen-history");
 }
 
-function resetApp(){
-  menus=[];players=[];currentPlayer=0;
+function resetApp() {
+  menus = [];
+  players = [];
+  currentPlayer = 0;
   show("screen-menu");
 }
 </script>
