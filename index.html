@@ -3,57 +3,57 @@
 <head>
   <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
   <link rel="icon" type="image/png" href="images/apple-touch-icon.png" sizes="192x192">
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>王将ダービー</title>
-<style>
-body { font-family: system-ui, -apple-system; background: #f5f5f5; padding: 10px; overflow-x: hidden; margin: 0; }
-.hidden { display: none !important; }
-.box { background: #fff; padding: 15px; margin-bottom: 12px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-input, button { width: 100%; margin: 5px 0; padding: 12px; font-size: 16px; box-sizing: border-box; }
-button { border: none; border-radius: 6px; font-weight: bold; color: #fff; cursor: pointer; transition: 0.2s; }
-button:disabled { background: #ccc !important; cursor: not-allowed; opacity: 0.6; }
-button:active:not(:disabled) { transform: scale(0.96); }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>王将ダービー</title>
+  <style>
+    body { font-family: system-ui, -apple-system; background: #f5f5f5; padding: 10px; overflow-x: hidden; margin: 0; }
+    .hidden { display: none !important; }
+    .box { background: #fff; padding: 15px; margin-bottom: 12px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    input, button { width: 100%; margin: 5px 0; padding: 12px; font-size: 16px; box-sizing: border-box; }
+    button { border: none; border-radius: 6px; font-weight: bold; color: #fff; cursor: pointer; transition: 0.2s; }
+    button:disabled { background: #ccc !important; cursor: not-allowed; opacity: 0.6; }
+    button:active:not(:disabled) { transform: scale(0.96); }
 
-.btn-main { background: linear-gradient(#C62828, #B71C1C); }
-.btn-add { background: linear-gradient(#2E7D32, #1B5E20); }
-.btn-start { background: linear-gradient(#FDD835, #F9A825); color: #000; }
-.btn-back { background: linear-gradient(#616161, #424242); }
-.btn-danger { background: linear-gradient(#EF6C00, #E65100); }
+    .btn-main { background: linear-gradient(#C62828, #B71C1C); }
+    .btn-add { background: linear-gradient(#2E7D32, #1B5E20); }
+    .btn-start { background: linear-gradient(#FDD835, #F9A825); color: #000; }
+    .btn-back { background: linear-gradient(#616161, #424242); }
+    .btn-danger { background: linear-gradient(#EF6C00, #E65100); }
 
-#menuList, #playerList, #historyList { 
-  max-height: 250px; 
-  overflow-y: auto; 
-  margin: 10px 0; 
-  padding: 10px; 
-  background: #f0f0f0; 
-  border-radius: 6px; 
-  font-size: 16px; 
-  line-height: 1.6;
-}
+    #menuList, #playerList, #historyList { 
+      max-height: 250px; 
+      overflow-y: auto; 
+      margin: 10px 0; 
+      padding: 10px; 
+      background: #f0f0f0; 
+      border-radius: 6px; 
+      font-size: 16px; 
+      line-height: 1.6;
+    }
 
-.result-slot { padding: 12px; border: 1px solid #ddd; margin: 5px 0; border-radius: 6px; background: #fafafa; cursor: pointer; position: relative; }
-.result-slot.active { border: 2px solid #F9A825; background: #fffde7; font-weight: bold; }
-.result-slot::after { content: "修正"; position: absolute; right: 12px; font-size: 11px; color: #999; }
+    .result-slot { padding: 12px; border: 1px solid #ddd; margin: 5px 0; border-radius: 6px; background: #fafafa; cursor: pointer; position: relative; }
+    .result-slot.active { border: 2px solid #F9A825; background: #fffde7; font-weight: bold; }
+    .result-slot::after { content: "修正"; position: absolute; right: 12px; font-size: 11px; color: #999; }
 
-.result-card { border: 2px solid #333; border-radius: 12px; background: #fff; overflow: hidden; position: relative; }
-.card-header { background: #B71C1C; color: #fff; padding: 10px; text-align: center; }
-.card-body { padding: 20px; text-align: center; }
-.card-row { margin: 10px 0; padding: 8px 0; border-bottom: 1px dashed #eee; }
-.card-label { font-size: 12px; color: #777; display: block; margin-bottom: 4px; }
-.card-value { font-size: 18px; font-weight: bold; color: #333; }
-.card-odds { font-size: 24px; color: #C62828; font-weight: 900; }
-.card-winners { font-size: 20px; color: #2E7D32; background: #e8f5e9; padding: 10px; border-radius: 8px; }
+    .result-card { border: 2px solid #333; border-radius: 12px; background: #fff; overflow: hidden; position: relative; }
+    .card-header { background: #B71C1C; color: #fff; padding: 10px; text-align: center; }
+    .card-body { padding: 20px; text-align: center; }
+    .card-row { margin: 10px 0; padding: 8px 0; border-bottom: 1px dashed #eee; }
+    .card-label { font-size: 12px; color: #777; display: block; margin-bottom: 4px; }
+    .card-value { font-size: 18px; font-weight: bold; color: #333; }
+    .card-odds { font-size: 24px; color: #C62828; font-weight: 900; }
+    .card-winners { font-size: 20px; color: #2E7D32; background: #e8f5e9; padding: 10px; border-radius: 8px; }
 
-.odds-tag { color: #888; margin-left: 6px; font-size: 0.9em; }
+    .odds-tag { color: #888; margin-left: 6px; font-size: 0.9em; }
 
-.confetti { position: fixed; width: 10px; height: 10px; bottom: -20px; z-index: 9999; pointer-events: none; animation: fountain var(--duration) ease-out forwards; }
-@keyframes fountain {
-  0% { transform: translateY(0) translateX(0) rotate(0deg); opacity: 1; }
-  50% { opacity: 1; }
-  100% { transform: translateY(var(--y)) translateX(var(--x)) rotate(720deg); opacity: 0; }
-}
-</style>
+    .confetti { position: fixed; width: 10px; height: 10px; bottom: -20px; z-index: 9999; pointer-events: none; animation: fountain var(--duration) ease-out forwards; }
+    @keyframes fountain {
+      0% { transform: translateY(0) translateX(0) rotate(0deg); opacity: 1; }
+      50% { opacity: 1; }
+      100% { transform: translateY(var(--y)) translateX(var(--x)) rotate(720deg); opacity: 0; }
+    }
+  </style>
 </head>
 <body>
 
@@ -127,7 +127,7 @@ button:active:not(:disabled) { transform: scale(0.96); }
 <footer style="text-align: center; padding: 20px; font-size: 12px; color: #888;">
   Copyright © 2026 URAKUSUI. All rights reserved.
 </footer>
-  
+
 <script>
 let menus=[], players=[], currentPlayer=0, tempPrediction=[null,null,null], tempResult=[null,null,null], activePredictSlot=0, activeResultSlot=0;
 const $ = (id) => document.getElementById(id);
@@ -172,13 +172,19 @@ function addMenu(){
   if(!val) return;
   if (menus.some(m => m.name === val)) {
     alert("そのメニューは既に追加されています。");
+    $("menuInput").value = ""; // 修正：重複時も入力をクリア
     return;
   }
   const menu = {name: val, odds: (Math.random() * 8 + 1).toFixed(1)};
   menus.push(menu);
   $("menuList").innerHTML = menus.map((m,i)=>`・ ${m.name} <span class="odds-tag">(${m.odds}倍)</span>`).join("<br>");
+  
   let h = JSON.parse(localStorage.getItem("menuNameHistory")||"[]");
-  if(!h.includes(val)){ h.unshift(val); localStorage.setItem("menuNameHistory", JSON.stringify(h.slice(0,20))); loadAllHistories(); }
+  if(!h.includes(val)){ 
+    h.unshift(val); 
+    localStorage.setItem("menuNameHistory", JSON.stringify(h.slice(0,20))); 
+    loadAllHistories(); 
+  }
   $("menuInput").value = "";
 }
 
@@ -186,6 +192,18 @@ function clearTopCache(){ if(confirm("クリアしますか？")){ menus=[]; $("
 
 function startPlayers(){
   if(menus.length < 3) return alert("メニューを3つ以上登録してください");
+  
+  // 修正：ショップ名の履歴保存処理を追加
+  const shopVal = $("shopInput").value.trim();
+  if(shopVal){
+    let sh = JSON.parse(localStorage.getItem("shopNameHistory")||"[]");
+    if(!sh.includes(shopVal)){
+      sh.unshift(shopVal);
+      localStorage.setItem("shopNameHistory", JSON.stringify(sh.slice(0,10)));
+      loadAllHistories();
+    }
+  }
+  
   show("screen-player");
 }
 
@@ -194,6 +212,13 @@ function addPlayer(){
   if(!val) return;
   players.push({name: val, prediction: []});
   $("playerList").innerHTML = players.map(p => `・ ${p.name}`).join("<br>");
+  
+  let h = JSON.parse(localStorage.getItem("playerHistory")||"[]");
+  if(!h.includes(val)){
+    h.unshift(val);
+    localStorage.setItem("playerHistory", JSON.stringify(h.slice(0,20)));
+    loadAllHistories();
+  }
   $("playerInput").value = "";
 }
 
@@ -332,6 +357,9 @@ function resetApp(){
   tempPrediction=[null,null,null]; tempResult=[null,null,null];
   $("menuList").innerHTML="メニューを追加してください"; 
   $("playerList").innerHTML="参加者がいません";
+  // 修正：リセット時に店名とメニュー名の入力欄もクリア
+  $("shopInput").value = "";
+  $("menuInput").value = "";
   show("screen-menu"); 
 }
 </script>
