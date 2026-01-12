@@ -20,17 +20,17 @@ button:active { transform:scale(0.98); }
 .btn-del {
   background: #f44336;
   margin-left: 10px;
-  width: 24px;       /* 幅を固定 */
-  height: 24px;      /* 高さを固定 */
+  width: 24px;
+  height: 24px;
   font-size: 14px;
-  line-height: 24px; /* テキストを中央に */
+  line-height: 24px;
   text-align: center;
   display: flex;
   justify-content: center;
   align-items: center;
   cursor: pointer;
   border-radius: 50%;
-  padding: 0;        /* 内側の余白はゼロに */
+  padding: 0;
 }
 .list-area { margin:15px 0; max-height:300px; overflow-y:auto; }
 .list-item { display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #eee; padding:10px 0; }
@@ -68,8 +68,13 @@ th { background:#eee; }
     <button type="button" class="btn-main" style="width:40px;height:40px;padding:0;font-size:24px;" onclick="toggleModal()">？</button>
   </div>
 
-  <input id="shopName" placeholder="店舗名（例：大阪駅前第2ビル）">
-  <input id="menuName" placeholder="メニュー名（例：餃子）">
+  <!-- 店舗名・メニューをdatalistで候補表示 -->
+  <input id="shopName" list="shopList" placeholder="店舗名（例：大阪駅前第2ビル）">
+  <datalist id="shopList"></datalist>
+
+  <input id="menuName" list="menuListData" placeholder="メニュー名（例：餃子）">
+  <datalist id="menuListData"></datalist>
+
   <button type="button" class="btn-add" onclick="addMenu()">＋ メニューを追加</button>
 
   <div id="menuList" class="list-area">
@@ -77,7 +82,6 @@ th { background:#eee; }
   </div>
 
   <button type="button" class="btn-main" onclick="toRaceTable()">🏁 出走表を確認</button>
-  <button type="button" class="btn-main" onclick="toPlayerReg()">👤 参加者登録</button>
   <button type="button" class="btn-main" onclick="showHistory()">📜 履歴表示</button>
   <button type="button" class="btn-back" onclick="resetAll()">🗑️ 最初からやり直す</button>
 </div>
@@ -144,17 +148,44 @@ const $=id=>document.getElementById(id);
 function show(id){ ['screen-menu','screen-race','screen-player','screen-predict','screen-result','screen-ticket','screen-history'].forEach(i=>{$(i).classList.add('hidden');}); $(id).classList.remove('hidden'); window.scrollTo(0,0);}
 function toggleModal(){ $('modal-help').classList.toggle('hidden'); }
 
+// --- 過去入力候補用関数 ---
+function addShopToList(shopName){
+  if(!shopName) return;
+  const list=$('shopList');
+  if (![...list.options].some(opt=>opt.value===shopName)){
+    const option=document.createElement('option');
+    option.value=shopName;
+    list.appendChild(option);
+  }
+}
+
+function addMenuToList(menuName){
+  if(!menuName) return;
+  const list=$('menuListData');
+  if (![...list.options].some(opt=>opt.value===menuName)){
+    const option=document.createElement('option');
+    option.value=menuName;
+    list.appendChild(option);
+  }
+}
+
 // --- メニュー ---
 function addMenu(){ 
   if(menus.length>=8){ alert("メニューは最大8品までです"); return; }
   const val=$('menuName').value.trim(); if(!val) return;
-  const odds=(Math.random()*8+1.1).toFixed(1); menus.push({name:val,odds:odds}); $('menuName').value=''; renderMenus();
+  const odds=(Math.random()*8+1.1).toFixed(1);
+  menus.push({name:val,odds:odds}); 
+  addMenuToList(val); // datalistに追加
+  $('menuName').value=''; 
+  renderMenus();
 }
+
 function renderMenus(){ 
   const list=$('menuList'); 
   if(menus.length===0){ list.innerHTML='<div style="text-align:center; color:#888;">メニューを追加してください</div>'; return;} 
   list.innerHTML=menus.map((m,i)=>`<div class="list-item"><span style="font-weight:bold;">${i+1}. ${m.name}</span><button type="button" class="btn-del" onclick="removeMenu(${i})">☓</button></div>`).join('');
 }
+
 function removeMenu(i){ menus.splice(i,1); renderMenus(); }
 
 // --- 出走表 ---
@@ -162,7 +193,11 @@ function toRaceTable(){
   if(menus.length<3){ alert("メニューを3つ以上登録してください"); return;}
   let html='<table><tr><th>枠</th><th>メニュー名</th><th>オッズ</th></tr>';
   menus.forEach((m,i)=>{ const waku=Math.min(8, Math.floor(i/Math.max(1,menus.length/8))+1); html+=`<tr><td class="waku-${waku}">${i+1}</td><td>${m.name}</td><td>${m.odds}倍</td></tr>`; });
-  html+='</table>'; $('raceTableArea').innerHTML=html; show('screen-race');
+  html+='</table>'; 
+  // 店舗候補追加
+  addShopToList($('shopName').value.trim());
+  $('raceTableArea').innerHTML=html; 
+  show('screen-race');
 }
 
 // --- 参加者 ---
