@@ -19,14 +19,16 @@ button:active:not(:disabled) { transform: scale(0.98); opacity: 0.9; }
 .btn-back { background: linear-gradient(#616161, #424242); }
 .btn-danger { background: linear-gradient(#EF6C00, #E65100); }
 
-.result-slot { padding: 10px; border: 1px solid #ddd; margin: 5px 0; border-radius: 4px; background: #fafafa; }
+.result-slot { padding: 10px; border: 1px solid #ddd; margin: 5px 0; border-radius: 4px; background: #fafafa; cursor: pointer; position: relative; }
 .result-slot.active { border: 2px solid #F9A825; background: #fffde7; font-weight: bold; }
+.result-slot::after { content: "修正する"; position: absolute; right: 10px; font-size: 10px; color: #999; font-weight: normal; }
 
 .ticket { border: 2px dashed #333; padding: 15px; font-family: monospace; background: #fff; }
 .ticket-title { text-align: center; font-weight: bold; color: #B71C1C; font-size: 1.2rem; }
 hr { border: 0; border-top: 1px solid #ccc; margin: 10px 0; }
 
 #menuList, #playerList, #historyList { max-height: 250px; overflow-y: auto; margin: 10px 0; padding: 5px; background: #eee; border-radius: 4px; font-size: 14px; }
+.odds-tag { font-size: 0.8em; color: #666; margin-left: 5px; }
 </style>
 </head>
 <body>
@@ -56,10 +58,11 @@ hr { border: 0; border-top: 1px solid #ccc; margin: 10px 0; }
 
 <div id="screen-prediction" class="box hidden">
   <h3 id="playerTitle"></h3>
+  <p style="font-size:12px; color:#666;">※枠をタップすると選択を解除して修正できます</p>
   <div class="box">
-    <div id="pslot0" class="result-slot active" onclick="setActivePredictSlot(0)">1着：<span id="slot1">未選択</span></div>
-    <div id="pslot1" class="result-slot" onclick="setActivePredictSlot(1)">2着：<span id="slot2">未選択</span></div>
-    <div id="pslot2" class="result-slot" onclick="setActivePredictSlot(2)">3着：<span id="slot3">未選択</span></div>
+    <div id="pslot0" class="result-slot active" onclick="clearPredictSlot(0)">1着：<span id="slot1">未選択</span></div>
+    <div id="pslot1" class="result-slot" onclick="clearPredictSlot(1)">2着：<span id="slot2">未選択</span></div>
+    <div id="pslot2" class="result-slot" onclick="clearPredictSlot(2)">3着：<span id="slot3">未選択</span></div>
   </div>
   <div id="menuChoices"></div>
   <button class="btn-main" onclick="savePrediction()">確定</button>
@@ -68,9 +71,9 @@ hr { border: 0; border-top: 1px solid #ccc; margin: 10px 0; }
 <div id="screen-result" class="box hidden">
   <h3>到着結果（1〜3着を選択）</h3>
   <div class="box">
-    <div id="rslot_ui0" class="result-slot active" onclick="setActiveResultSlot(0)">1着：<span id="rslot1">未選択</span></div>
-    <div id="rslot_ui1" class="result-slot" onclick="setActiveResultSlot(1)">2着：<span id="rslot2">未選択</span></div>
-    <div id="rslot_ui2" class="result-slot" onclick="setActiveResultSlot(2)">3着：<span id="rslot3">未選択</span></div>
+    <div id="rslot_ui0" class="result-slot active" onclick="clearResultSlot(0)">1着：<span id="rslot1">未選択</span></div>
+    <div id="rslot_ui1" class="result-slot" onclick="clearResultSlot(1)">2着：<span id="rslot2">未選択</span></div>
+    <div id="rslot_ui2" class="result-slot" onclick="clearResultSlot(2)">3着：<span id="rslot3">未選択</span></div>
   </div>
   <div id="resultChoices"></div>
   <button class="btn-main" onclick="judge()">結果発表</button>
@@ -97,7 +100,7 @@ hr { border: 0; border-top: 1px solid #ccc; margin: 10px 0; }
 </div>
 
 <script>
-let menus=[], players=[], currentPlayer=0, tempPrediction=[], tempResult=[], activePredictSlot=0, activeResultSlot=0;
+let menus=[], players=[], currentPlayer=0, tempPrediction=[null,null,null], tempResult=[null,null,null], activePredictSlot=0, activeResultSlot=0;
 const $ = (id) => document.getElementById(id);
 
 function show(id){
@@ -116,17 +119,15 @@ function loadAllHistories(){
 }
 window.onload = loadAllHistories;
 
-/* トップ操作：重複メニュー追加を禁止 */
+/* トップ操作 */
 function addMenu(){
   const val = $("menuInput").value.trim();
   if(!val) return;
-  if(menus.some(m => m.name === val)) {
-    alert("そのメニューは既に追加されています");
-    return;
-  }
+  if(menus.some(m => m.name === val)) { alert("既に追加されています"); return; }
+  
   const menu = {name: val, odds: (Math.random() * 8 + 1).toFixed(1)};
   menus.push(menu);
-  $("menuList").innerHTML = menus.map((m,i)=>`${i+1}. ${m.name}`).join("<br>");
+  $("menuList").innerHTML = menus.map((m,i)=>`${i+1}. ${m.name} <span class="odds-tag">(${m.odds}倍)</span>`).join("<br>");
   
   let h = JSON.parse(localStorage.getItem("menuNameHistory")||"[]");
   if(!h.includes(val)){ h.unshift(val); localStorage.setItem("menuNameHistory", JSON.stringify(h.slice(0,20))); loadAllHistories(); }
@@ -140,19 +141,17 @@ function startPlayers(){
   show("screen-player");
 }
 
-/* 参加者操作 */
 function addPlayer(){
   const val = $("playerInput").value.trim();
   if(!val) return;
   players.push({name: val, prediction: []});
   $("playerList").innerHTML = players.map(p => p.name).join("<br>");
-  
   let h = JSON.parse(localStorage.getItem("playerHistory")||"[]");
   if(!h.includes(val)){ h.unshift(val); localStorage.setItem("playerHistory", JSON.stringify(h.slice(0,20))); loadAllHistories(); }
   $("playerInput").value = "";
 }
 
-/* 予想画面：選択済みのメニューをグレーアウト/無効化 */
+/* 予想・修正ロジック */
 function nextStepPrediction(){
   if(currentPlayer >= players.length){ showResultSelect(); return; }
   const p = players[currentPlayer];
@@ -165,23 +164,31 @@ function nextStepPrediction(){
   show("screen-prediction");
 }
 
+function clearPredictSlot(i){
+  tempPrediction[i] = null;
+  activePredictSlot = i;
+  updatePredictUI();
+}
+
 function updatePredictUI(){
-  // スロットの文字更新
-  [1,2,3].forEach(i => $(`slot${i}`).innerText = tempPrediction[i-1] ? menus[tempPrediction[i-1]-1].name : "未選択");
-  // 選択中の着順ハイライト
+  [1,2,3].forEach(i => {
+    const mIdx = tempPrediction[i-1];
+    $(`slot${i}`).innerText = mIdx ? `${menus[mIdx-1].name} (${menus[mIdx-1].odds}倍)` : "未選択";
+  });
   [0,1,2].forEach(i => $(`pslot${i}`).classList.toggle("active", i === activePredictSlot));
   
-  // ボタン一覧の生成（すでに他の着順で選んでいるものは無効化）
   $("menuChoices").innerHTML = menus.map((m,i) => {
     const menuIndex = i + 1;
     const isSelected = tempPrediction.includes(menuIndex);
-    return `<button class="btn-add" onclick="selectMenu(${menuIndex})" ${isSelected ? 'disabled' : ''}>${m.name}</button>`;
+    return `<button class="btn-add" onclick="selectMenu(${menuIndex})" ${isSelected ? 'disabled' : ''}>${m.name} (${m.odds}倍)</button>`;
   }).join("");
 }
 
 function selectMenu(n){
   tempPrediction[activePredictSlot] = n;
-  if(activePredictSlot < 2) activePredictSlot++;
+  // 次の空きスロットを探す
+  const nextEmpty = tempPrediction.indexOf(null);
+  if(nextEmpty !== -1) activePredictSlot = nextEmpty;
   updatePredictUI();
 }
 
@@ -199,7 +206,7 @@ function savePrediction(){
   nextStepPrediction();
 }
 
-/* 結果発表：結果入力でも重複を禁止 */
+/* 結果・修正ロジック */
 function showResultSelect(){
   tempResult = [null, null, null]; 
   activeResultSlot = 0;
@@ -207,20 +214,30 @@ function showResultSelect(){
   show("screen-result");
 }
 
+function clearResultSlot(i){
+  tempResult[i] = null;
+  activeResultSlot = i;
+  updateResultUI();
+}
+
 function updateResultUI(){
-  [1,2,3].forEach(i => $(`rslot${i}`).innerText = tempResult[i-1] ? menus[tempResult[i-1]-1].name : "未選択");
+  [1,2,3].forEach(i => {
+    const mIdx = tempResult[i-1];
+    $(`rslot${i}`).innerText = mIdx ? `${menus[mIdx-1].name} (${menus[mIdx-1].odds}倍)` : "未選択";
+  });
   [0,1,2].forEach(i => $(`rslot_ui${i}`).classList.toggle("active", i === activeResultSlot));
   
   $("resultChoices").innerHTML = menus.map((m,i) => {
     const menuIndex = i + 1;
     const isSelected = tempResult.includes(menuIndex);
-    return `<button class="btn-start" onclick="selectResult(${menuIndex})" ${isSelected ? 'disabled' : ''}>${m.name}</button>`;
+    return `<button class="btn-start" onclick="selectResult(${menuIndex})" ${isSelected ? 'disabled' : ''}>${m.name} (${m.odds}倍)</button>`;
   }).join("");
 }
 
 function selectResult(n){
   tempResult[activeResultSlot] = n;
-  if(activeResultSlot < 2) activeResultSlot++;
+  const nextEmpty = tempResult.indexOf(null);
+  if(nextEmpty !== -1) activeResultSlot = nextEmpty;
   updateResultUI();
 }
 
@@ -229,7 +246,7 @@ function judge(){
   const shop = $("shopInput").value || "王将";
   $("raceTitle").innerText = `第11R ${shop}記念`;
   $("ticketDate").innerText = today();
-  $("ticketResult").innerHTML = tempResult.map((n,i)=>`${i+1}着：${menus[n-1].name}`).join("<br>");
+  $("ticketResult").innerHTML = tempResult.map((n,i)=>`${i+1}着：${menus[n-1].name} (${menus[n-1].odds}倍)`).join("<br>");
   
   let winners = players.filter(p => p.prediction.every((v,i) => v === tempResult[i])).map(p=>p.name);
   $("ticketWinners").innerHTML = winners.length ? `★的中者：${winners.join(", ")}` : "的中者なし";
@@ -249,8 +266,6 @@ function showHistory(){
 }
 
 function resetApp(){ menus=[]; players=[]; show("screen-menu"); $("menuList").innerHTML="メニューを追加してください"; }
-function setActivePredictSlot(i){ activePredictSlot = i; updatePredictUI(); }
-function setActiveResultSlot(i){ activeResultSlot = i; updateResultUI(); }
 </script>
 </body>
 </html>
