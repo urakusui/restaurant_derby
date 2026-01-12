@@ -110,16 +110,20 @@ button:active {
 
 <!-- 参加者 -->
 <div id="screen-player" class="box hidden">
-  <input id="playerInput" placeholder="参加者名">
+  <input id="playerInput" placeholder="参加者名" list="playerHistory">
+  <datalist id="playerHistory"></datalist>
+
+  <button class="btn-start" onclick="startPrediction()">予想開始</button>
+  <button class="btn-danger" onclick="clearPlayers()">参加者を全削除</button>
+
   <button class="btn-add" onclick="addPlayer()">追加</button>
   <div id="playerList"></div>
-  <button class="btn-danger" onclick="clearPlayers()">参加者を全削除</button>
-  <button class="btn-start" onclick="startPrediction()">予想開始</button>
 </div>
 
 <!-- 予想 -->
 <div id="screen-prediction" class="box hidden">
   <h3 id="playerTitle"></h3>
+  <small>（タップで入れ替え）</small>
 
   <div class="box">
     <div class="result-slot active" onclick="setActivePredictSlot(0)">1着：<span id="slot1">未選択</span></div>
@@ -202,8 +206,14 @@ function loadShopHistory() {
   const h = JSON.parse(localStorage.getItem("shopNameHistory") || "[]");
   shopHistory.innerHTML = h.map(v => `<option value="${v}">`).join("");
 }
+function loadPlayerHistory() {
+  const h = JSON.parse(localStorage.getItem("playerHistory") || "[]");
+  playerHistory.innerHTML = h.map(v => `<option value="${v}">`).join("");
+}
+
 loadMenuHistory();
 loadShopHistory();
+loadPlayerHistory();
 
 /* トップ */
 function clearTopCache() {
@@ -241,12 +251,40 @@ function startPlayers() {
 }
 
 /* 参加者 */
-function addPlayer() {
-  if (!playerInput.value) return;
-  players.push({ name: playerInput.value, prediction: [] });
-  playerList.innerHTML = players.map(p=>p.name).join("<br>");
+function addPlayer(name = null) {
+  const playerName = name || playerInput.value;
+  if (!playerName) return;
+
+  // 重複チェック
+  if (players.some(p => p.name === playerName)) {
+    playerInput.value = "";
+    return;
+  }
+
+  players.push({ name: playerName, prediction: [] });
+  playerList.innerHTML = players.map(p => p.name).join("<br>");
+
+  // 履歴に保存
+  let h = JSON.parse(localStorage.getItem("playerHistory") || "[]");
+  if (!h.includes(playerName)) {
+    h.unshift(playerName);
+    h = h.slice(0,50);
+    localStorage.setItem("playerHistory", JSON.stringify(h));
+    loadPlayerHistory();
+  }
+
   playerInput.value = "";
 }
+
+// 履歴選択で自動追加
+playerInput.addEventListener("change", () => {
+  const val = playerInput.value.trim();
+  const history = JSON.parse(localStorage.getItem("playerHistory") || "[]");
+  if (history.includes(val)) {
+    addPlayer(val);
+  }
+});
+
 function clearPlayers() {
   if (!confirm("参加者をすべて削除しますか？")) return;
   players = [];
@@ -274,7 +312,7 @@ function showPrediction() {
   menuChoices.innerHTML = menus.map((m,i)=>
     `<button onclick="selectMenu(${i+1})">${i+1}. ${m.name}</button>`
   ).join("");
-  playerTitle.innerText = `予想：${p.name}`;
+  playerTitle.innerHTML = `予想：${p.name} <small>（タップで入れ替え）</small>`;
   show("screen-prediction");
 }
 function setActivePredictSlot(i) {
@@ -342,17 +380,24 @@ function judge() {
   tempResult.forEach(n=>combinedOdds*=parseFloat(menus[n-1].odds));
   ticketOdds.innerHTML = `<strong>確定オッズ：</strong>${combinedOdds.toFixed(1)}倍`;
 
+  // 予想的中者
+  const winners = players.filter(p => {
+    return p.prediction.every((v,i) => v === tempResult[i]);
+  }).map(p => p.name);
+
   ticketWinners.innerHTML = players.map(p=>{
     const hit = p.prediction.filter((v,i)=>v===tempResult[i]).length;
     return `${hit===3?"◎":hit===2?"◯":"✖︎"} ${p.name}`;
   }).join("<br>");
 
+  // 予想一覧
   ticketPredictions.innerHTML =
     "<strong>【予想一覧】</strong><br>" +
     players.map(p =>
       `・${p.name}：${p.prediction.map(i=>menus[i-1].name).join(" → ")}`
     ).join("<br>");
 
+  // 店名履歴
   const shop = shopInput.value;
   if (shop) {
     let h = JSON.parse(localStorage.getItem("shopNameHistory") || "[]");
@@ -370,15 +415,38 @@ function judge() {
 /* 履歴 */
 function saveHistory() {
   const h = JSON.parse(localStorage.getItem("chukaHistory") || "[]");
-  h.unshift({ title: raceTitle.innerText, date: ticketDate.innerText });
+
+  // メニュー一覧、1着〜3着、各オッズ、確定オッズ、的中者
+  const menuListStr = menus.map((m,i)=>`${i+1}. ${m.name}（${m.odds}倍）`).join("<br>");
+  const resultStr = tempResult.map((n,i)=>`${i+1}着：${menus[n-1].name}（${menus[n-1].odds}倍）`).join("<br>");
+  let combinedOdds = 1;
+  tempResult.forEach(n=>combinedOdds *= parseFloat(menus[n-1].odds));
+  const winners = players.filter(p => p.prediction.every((v,i) => v === tempResult[i])).map(p=>p.name).join("、");
+
+  h.unshift({
+    title: raceTitle.innerText,
+    date: ticketDate.innerText,
+    menus: menuListStr,
+    result: resultStr,
+    combinedOdds: combinedOdds.toFixed(1),
+    winners: winners
+  });
   localStorage.setItem("chukaHistory", JSON.stringify(h));
-  alert("保存しました");
+  alert("履歴に保存しました");
 }
+
 function showHistory() {
   const h = JSON.parse(localStorage.getItem("chukaHistory") || "[]");
-  historyList.innerHTML = h.map(v=>`${v.title}<br>${v.date}`).join("<hr>");
+  historyList.innerHTML = h.map(v=>
+    `<strong>${v.title}</strong><br>${v.date}<br>
+     <strong>メニュー一覧：</strong><br>${v.menus}<br>
+     <strong>結果：</strong><br>${v.result}<br>
+     <strong>確定オッズ：</strong> ${v.combinedOdds}倍<br>
+     ${v.winners ? "<strong>的中者：</strong>" + v.winners : ""}`
+  ).join("<hr>");
   show("screen-history");
 }
+
 function resetApp() {
   menus = [];
   players = [];
