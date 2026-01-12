@@ -1,479 +1,292 @@
 <!DOCTYPE html>
-
 <html lang="ja">
-
 <head>
-
 <meta charset="UTF-8">
-
-<meta name="viewport" content="width=デバイス幅, initial-scale=1.0">
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>中華到着順ダービー</title>
 
 <style>
-
 body {
-
-  font-family: system-ui, -apple-system, BlinkMacSystemFont;
-
-  背景: #f5f5f5;
-
-  パディング: 10px;
-
+  font-family: system-ui, -apple-system;
+  background: #f5f5f5;
+  padding: 10px;
 }
-
 .hidden { display: none; }
-
 .box {
-
-  背景: #fff;
-
-  パディング: 10px;
-
-  下余白: 10px;
-
-  境界線の半径: 6px;
-
+  background: #fff;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 6px;
 }
-
-入力、ボタン {
-
-  幅: 100%;
-
-  マージン: 5px 0;
-
-  パディング: 8px;
-
-  フォントサイズ: 16px;
-
+input, button {
+  width: 100%;
+  margin: 5px 0;
+  padding: 8px;
+  font-size: 16px;
 }
-
-ボタン {
-
-  背景: #333;
-
-  色: #fff;
-
+button {
+  background: #333;
+  color: #fff;
   border: none;
-
   border-radius: 4px;
-
 }
-
 .ticket {
-
   border: 2px dashed #000;
-
   padding: 12px;
-
   font-family: monospace;
-
 }
-
 .ticket-title {
-
   text-align: center;
-
   font-weight: bold;
-
-  下余白: 10px;
-
+  margin-bottom: 10px;
 }
 
+.choice-btn {
+  width: 100%;
+  margin: 4px 0;
+}
+.choice-btn.used {
+  background: #ccc;
+  color: #666;
+}
+
+.odds-label {
+  font-size: 12px;
+  margin-left: 6px;
+  padding: 2px 6px;
+  border-radius: 10px;
+}
+.odds-favorite { background: #ffe066; }
+.odds-longshot { background: #ffcccc; }
 </style>
-
 </head>
-
-
 
 <body>
 
-
-
-<!-- ① メニュー入力 -->
-
+<!-- メニュー -->
 <div id="screen-menu" class="box">
-
   <h2>中華到着順ダービー</h2>
-
   <input id="shopInput" placeholder="店名">
-
   <input id="menuInput" placeholder="メニュー名">
-
   <button onclick="addMenu()">追加</button>
-
   <div id="menuList"></div>
-
   <button onclick="startPlayers()">次へ</button>
-
 </div>
 
-
-
-<!-- ② 参加者 -->
-
-<div id="スクリーンプレーヤー" class="ボックス非表示">
-
+<!-- 参加者 -->
+<div id="screen-player" class="box hidden">
   <input id="playerInput" placeholder="参加者名">
-
   <button onclick="addPlayer()">追加</button>
-
   <div id="playerList"></div>
-
   <button onclick="startPrediction()">予想開始</button>
-
 </div>
 
-
-
-<!-- ③ 予想 -->
-
-<div id="スクリーン予測" class="ボックス非表示">
-
+<!-- 予想 -->
+<div id="screen-prediction" class="box hidden">
   <h3 id="playerTitle"></h3>
 
-  <input id="p1" placeholder="1着">
-
-  <input id="p2" placeholder="2">
-
-  <input id="p3" placeholder="3">
-
-  <button onclick="savePrediction()">確定</button>
-
-</div>
-
-
-
-<!-- ④ 結果入力 -->
-
-<div id="screen-result" class="boxhidden">
-
-  <h3>到着結果</h3>
-
-  <input id="r1" placeholder="1着">
-
-  <input id="r2" placeholder="2">
-
-  <input id="r3" placeholder="3">
-
-  <button onclick="judge()">結果表示</button>
-
-</div>
-
-
-
-<!-- ⑤ 結果馬券 -->
-
-<div id="screen-ticket" class="box 非表示">
-
-  <div class="ticket">
-
-    <div class="ticket-title">
-
-      中華料理到着順ダービー<br>
-
-      <span id="ticketShop"></span><br>
-
-      <span id="ticketDate"></span>
-
-    </div>
-
-    <div id="ticketResult"></div>
-
-    <hr>
-
-    <div id="ticketWinners"></div>
-
-    <div style="text-align:center">※ ごちそうさまでした</div>
-
+  <div class="box">
+    1着：<span id="slot1">未選択</span><br>
+    2着：<span id="slot2">未選択</span><br>
+    3着：<span id="slot3">未選択</span>
   </div>
 
-  <button onclick="saveHistory()"> 履歴に保存</button>
+  <div id="menuChoices"></div>
 
-  <button onclick="showHistory()"> 履歴を見る</button>
-
-  <button onclick="resetApp()"> 開始</button>
-
+  <button onclick="savePrediction()">確定</button>
 </div>
 
+<!-- 結果入力 -->
+<div id="screen-result" class="box hidden">
+  <h3>到着結果</h3>
+  <input id="r1" placeholder="1着">
+  <input id="r2" placeholder="2着">
+  <input id="r3" placeholder="3着">
+  <button onclick="judge()">結果表示</button>
+</div>
 
+<!-- 結果馬券 -->
+<div id="screen-ticket" class="box hidden">
+  <div class="ticket">
+    <div class="ticket-title">
+      中華到着順ダービー<br>
+      <span id="ticketShop"></span><br>
+      <span id="ticketDate"></span>
+    </div>
+    <div id="ticketResult"></div>
+    <hr>
+    <div id="ticketWinners"></div>
+    <div style="text-align:center">※ ごちそうさまでした</div>
+  </div>
+  <button onclick="saveHistory()">履歴に保存</button>
+  <button onclick="showHistory()">履歴を見る</button>
+  <button onclick="resetApp()">最初から</button>
+</div>
 
-<!-- ⑥ 履歴 -->
-
+<!-- 履歴 -->
 <div id="screen-history" class="box hidden">
-
   <h3>履歴</h3>
-
   <div id="historyList"></div>
-
   <button onclick="showStats()">店ごとの戦績</button>
-
   <button onclick="show('screen-menu')">戻る</button>
-
 </div>
 
-
-
-<!-- ⑦ 戦績 -->
-
+<!-- 戦績 -->
 <div id="screen-stats" class="box hidden">
-
   <h3>店ごとの戦績</h3>
-
   <div id="statsList"></div>
-
   <button onclick="show('screen-history')">戻る</button>
-
 </div>
-
-
 
 <script>
-
 let menus = [];
-
 let players = [];
-
 let currentPlayer = 0;
-
-
+let tempPrediction = [];
 
 function show(id) {
-
   document.querySelectorAll("[id^='screen']").forEach(d => d.classList.add("hidden"));
-
   document.getElementById(id).classList.remove("hidden");
-
 }
-
-
 
 function today() {
-
   const d = new Date();
-
   return `${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}`;
-
 }
-
-
 
 function addMenu() {
-
-  const input = menuInput.value.trim();
-
-  if (!input) return;
-
-  menus.push({ name: input, odds: (Math.random()*8+1).toFixed(1) });
-
+  if (!menuInput.value) return;
+  menus.push({
+    name: menuInput.value,
+    odds: (Math.random()*8+1).toFixed(1)
+  });
   menuInput.value = "";
-
-  renderMenus();
-
-}
-
-
-
-function renderMenus() {
-
   menuList.innerHTML = menus.map((m,i)=>`${i+1}. ${m.name}（${m.odds}倍）`).join("<br>");
-
 }
-
-
 
 function startPlayers() {
-
-  if (menus.length < 3) return alert("メニューを3つ以上");
-
+  if (menus.length < 3) return alert("メニューを3つ以上追加してください");
   show("screen-player");
-
 }
-
-
 
 function addPlayer() {
-
-  const name = playerInput.value.trim();
-
-  if (!name) return;
-
-  players.push({ name, prediction: [] });
-
+  if (!playerInput.value) return;
+  players.push({ name: playerInput.value, prediction: [] });
   playerInput.value = "";
-
   playerList.innerHTML = players.map(p=>p.name).join("<br>");
-
 }
-
-
 
 function randomPrediction() {
-
   return [...menus.keys()].map(i=>i+1).sort(()=>Math.random()-0.5).slice(0,3);
-
 }
-
-
 
 function startPrediction() {
-
-  players.push({ name:"伝説の料理人", prediction: randomPrediction() });
-
+  players.push({ name: "伝説の料理人", prediction: randomPrediction() });
   currentPlayer = 0;
-
   showPrediction();
-
 }
-
-
 
 function showPrediction() {
-
   const p = players[currentPlayer];
-
   if (p.name === "伝説の料理人") {
-
     currentPlayer++;
-
     return currentPlayer < players.length ? showPrediction() : show("screen-result");
-
   }
 
+  tempPrediction = [];
+  slot1.innerText = slot2.innerText = slot3.innerText = "未選択";
+
+  menuChoices.innerHTML = menus.map((m,i)=>{
+    let label = "";
+    if (m.odds <= 2.0) label = '<span class="odds-label odds-favorite">本命</span>';
+    else if (m.odds >= 6.0) label = '<span class="odds-label odds-longshot">大穴</span>';
+
+    return `<button id="choice${i+1}" class="choice-btn"
+      onclick="selectMenu(${i+1})">
+      ${i+1}. ${m.name}（${m.odds}倍）${label}
+    </button>`;
+  }).join("");
+
   playerTitle.innerText = `予想：${p.name}`;
-
-  p1.value = p2.value = p3.value = "";
-
   show("screen-prediction");
-
 }
 
+function selectMenu(num) {
+  if (tempPrediction.includes(num)) return;
+  if (navigator.vibrate) navigator.vibrate(50);
 
+  tempPrediction.push(num);
+  document.getElementById(`choice${num}`).classList.add("used");
+
+  if (tempPrediction.length === 1) slot1.innerText = menus[num-1].name;
+  if (tempPrediction.length === 2) slot2.innerText = menus[num-1].name;
+  if (tempPrediction.length === 3) slot3.innerText = menus[num-1].name;
+}
 
 function savePrediction() {
-
-  players[currentPlayer].prediction = [Number(p1.value),Number(p2.value),Number(p3.value)];
-
+  if (tempPrediction.length !== 3) return alert("すべて選択してください");
+  players[currentPlayer].prediction = [...tempPrediction];
   currentPlayer++;
-
   currentPlayer < players.length ? showPrediction() : show("screen-result");
-
 }
-
-
 
 function judge() {
-
   const result = [Number(r1.value),Number(r2.value),Number(r3.value)];
-
   ticketShop.innerText = shopInput.value || "（店名未記入）";
-
   ticketDate.innerText = today();
 
-
-
-  ticketResult.innerHTML = result.map((n,i)=>`${i+1}着：${menus[n-1].name}（${menus[n-1].odds}倍）`).join("<br>");
-
-
+  ticketResult.innerHTML = result.map((n,i)=>
+    `${i+1}着：${menus[n-1].name}（${menus[n-1].odds}倍）`
+  ).join("<br>");
 
   ticketWinners.innerHTML = players.map(p=>{
-
-    let hit = p.prediction.filter((v,i)=>v===result[i]).length;
-
+    const hit = p.prediction.filter((v,i)=>v===result[i]).length;
     return `${hit===3?"◎":hit===2?"◯":"✖︎"} ${p.name}`;
-
   }).join("<br>");
 
-
-
   show("screen-ticket");
-
 }
-
-
 
 function saveHistory() {
-
   const h = JSON.parse(localStorage.getItem("chukaHistory")||"[]");
-
   h.unshift({
-
     shop: ticketShop.innerText,
-
     date: ticketDate.innerText,
-
     winners: ticketWinners.innerHTML
-
   });
-
   localStorage.setItem("chukaHistory", JSON.stringify(h));
-
   alert("保存しました");
-
 }
-
-
 
 function showHistory() {
-
   const h = JSON.parse(localStorage.getItem("chukaHistory")||"[]");
-
-  historyList.innerHTML = h.map((v,i)=>`${v.shop}<br>${v.date}`).join("<hr>");
-
+  historyList.innerHTML = h.map(v=>`${v.shop}<br>${v.date}`).join("<hr>");
   show("screen-history");
-
 }
-
-
 
 function showStats() {
-
   const h = JSON.parse(localStorage.getItem("chukaHistory")||"[]");
-
   const s = {};
-
   h.forEach(v=>{
-
     s[v.shop] ??= {t:0,w:0,p:0,l:0};
-
     s[v.shop].t++;
-
     if (v.winners.includes("◎ 伝説の料理人")) s[v.shop].w++;
-
     else if (v.winners.includes("◯ 伝説の料理人")) s[v.shop].p++;
-
     else s[v.shop].l++;
-
   });
-
   statsList.innerHTML = Object.entries(s).map(([k,v])=>
-
     `${k}<br>開催:${v.t} ◎${v.w} ◯${v.p} ✖︎${v.l}<br><br>`
-
   ).join("");
-
   show("screen-stats");
-
 }
-
-
 
 function resetApp() {
-
   menus = [];
-
   players = [];
-
   currentPlayer = 0;
-
   show("screen-menu");
-
 }
-
 </script>
 
-
-
 </body>
-
 </html>
