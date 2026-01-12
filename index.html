@@ -32,6 +32,7 @@ th { background: #eee; }
 </head>
 <body>
 
+<!-- トップ画面 -->
 <div id="screen-menu" class="box">
   <div class="header-row">
     <h2>王将ダービー</h2>
@@ -56,9 +57,11 @@ th { background: #eee; }
   </div>
 
   <button type="button" class="btn-main" onclick="toRaceTable()">🏁 出走表を確認</button>
+  <button type="button" class="btn-main" onclick="showHistory()">📜 履歴表示</button>
   <button type="button" class="btn-back" onclick="resetAll()">🗑️ 最初からやり直す</button>
 </div>
 
+<!-- 出走表画面 -->
 <div id="screen-race" class="box hidden">
   <h3>🏁 出走表</h3>
   <div id="raceTableArea"></div>
@@ -66,6 +69,7 @@ th { background: #eee; }
   <button type="button" class="btn-back" onclick="show('screen-menu')">メニュー修正に戻る</button>
 </div>
 
+<!-- 参加者登録 -->
 <div id="screen-player" class="box hidden">
   <h3>👤 参加者登録</h3>
   <input id="playerName" placeholder="名前を入力">
@@ -75,6 +79,7 @@ th { background: #eee; }
   <button type="button" class="btn-back" onclick="show('screen-race')">戻る</button>
 </div>
 
+<!-- 予想画面 -->
 <div id="screen-predict" class="box hidden">
   <h3 id="predictTitle">予想画面</h3>
   <p>1着〜3着を選んでください</p>
@@ -83,6 +88,7 @@ th { background: #eee; }
   <button type="button" class="btn-main" onclick="confirmPrediction()">決定</button>
 </div>
 
+<!-- 結果入力 -->
 <div id="screen-result" class="box hidden">
   <h3>🏆 結果入力</h3>
   <p>届いた料理を順番に選んでください</p>
@@ -91,6 +97,7 @@ th { background: #eee; }
   <button type="button" class="btn-main" onclick="showResult()">結果発表！</button>
 </div>
 
+<!-- 結果発表 -->
 <div id="screen-ticket" class="box hidden">
   <div style="text-align:center; border: 2px solid #333; padding: 20px; border-radius: 10px;">
     <h2 id="finalTitle">結果発表</h2>
@@ -102,6 +109,13 @@ th { background: #eee; }
   <button type="button" class="btn-back" onclick="resetAll()">タイトルへ戻る</button>
 </div>
 
+<!-- 履歴表示画面 -->
+<div id="screen-history" class="box hidden">
+  <h3>📜 レース履歴</h3>
+  <div id="historyList" class="list-area">履歴がありません</div>
+  <button type="button" class="btn-back" onclick="show('screen-menu')">戻る</button>
+</div>
+
 <script>
 let menus = [];
 let players = [];
@@ -109,16 +123,19 @@ let currentPlayerIndex = 0;
 let tempPrediction = [null,null,null];
 let tempResult = [null,null,null];
 let activeSlot = 0;
+let history = []; // 最大10件の履歴
+
 const $ = id => document.getElementById(id);
 
 function show(screenId) {
-  ['screen-menu','screen-race','screen-player','screen-predict','screen-result','screen-ticket'].forEach(id=>{
+  ['screen-menu','screen-race','screen-player','screen-predict','screen-result','screen-ticket','screen-history'].forEach(id=>{
     $(id).classList.add('hidden');
   });
   $(screenId).classList.remove('hidden');
   window.scrollTo(0,0);
 }
 
+// --- メニュー管理 ---
 function addMenu() {
   const val = $('menuName').value.trim();
   if(!val) return;
@@ -145,6 +162,7 @@ function renderMenus() {
 
 function removeMenu(i){ menus.splice(i,1); renderMenus(); }
 
+// --- 出走表 ---
 function toRaceTable() {
   if(menus.length<3) return alert("メニューを3つ以上登録してください（レースが成立しません）");
   let html='<table><tr><th>枠</th><th>メニュー名</th><th>オッズ</th></tr>';
@@ -157,22 +175,67 @@ function toRaceTable() {
   show('screen-race');
 }
 
+// --- 参加者管理 ---
 function toPlayerReg(){ show('screen-player'); }
 function addPlayer(){ const val=$('playerName').value.trim(); if(!val) return; players.push({name:val,prediction:[]}); $('playerName').value=''; renderPlayers(); }
 function renderPlayers(){ const list=$('playerList'); if(players.length===0){ list.innerHTML='参加者がいません'; return;} list.innerHTML = players.map(p=>`<div class="list-item">👤 ${p.name}</div>`).join(''); }
 
+// --- 予想 ---
 function startPrediction(){ if(players.length===0)return alert("参加者を追加してください"); currentPlayerIndex=0; setupPredictionScreen();}
 function setupPredictionScreen(){ if(currentPlayerIndex>=players.length){ setupResultScreen(); return;} const p=players[currentPlayerIndex]; $('predictTitle').innerText=`予想：${p.name} さん`; tempPrediction=[null,null,null]; activeSlot=0; renderPredictionUI(); show('screen-predict'); }
 function renderPredictionUI(){ const labels=['1着','2着','3着']; let html=''; for(let i=0;i<3;i++){ const menuIdx=tempPrediction[i]; const text=menuIdx!==null?menus[menuIdx].name:'（未選択）'; const activeStyle=(i===activeSlot)?'background:#FFF3E0;border:2px solid orange;':'background:#fff;'; html+=`<div style="padding:10px;margin:5px 0;border:1px solid #ddd;border-radius:4px;${activeStyle}" onclick="activeSlot=${i}; renderPredictionUI();"><b>${labels[i]}</b> : ${text}</div>`;} $('predictInputs').innerHTML=html; $('menuButtons').innerHTML=menus.map((m,i)=>`<button type="button" style="margin:4px 0;background:#eee;color:#333;text-align:left;" onclick="selectMenuForPrediction(${i})" ${tempPrediction.includes(i)?'disabled style="opacity:0.3"':''}>${i+1}. ${m.name} (${m.odds}倍)</button>`).join('');}
 function selectMenuForPrediction(idx){ tempPrediction[activeSlot]=idx; const next=tempPrediction.indexOf(null); if(next!==-1) activeSlot=next; renderPredictionUI(); }
 function confirmPrediction(){ if(tempPrediction.includes(null))return alert("1着から3着まですべて選んでください"); players[currentPlayerIndex].prediction=[...tempPrediction]; currentPlayerIndex++; setupPredictionScreen(); }
 
+// --- 結果入力 ---
 function setupResultScreen(){ tempResult=[null,null,null]; activeSlot=0; renderResultUI(); show('screen-result'); }
 function renderResultUI(){ const labels=['1着','2着','3着']; let html=''; for(let i=0;i<3;i++){ const menuIdx=tempResult[i]; const text=menuIdx!==null?menus[menuIdx].name:'（未選択）'; const activeStyle=(i===activeSlot)?'background:#FFF3E0;border:2px solid orange;':'background:#fff;'; html+=`<div style="padding:10px;margin:5px 0;border:1px solid #ddd;border-radius:4px;${activeStyle}" onclick="activeSlot=${i}; renderResultUI();"><b>${labels[i]}</b> : ${text}</div>`;} $('resultInputs').innerHTML=html; $('resultButtons').innerHTML=menus.map((m,i)=>`<button type="button" style="margin:4px 0;background:#eee;color:#333;text-align:left;" onclick="selectMenuForResult(${i})" ${tempResult.includes(i)?'disabled style="opacity:0.3"':''}>${i+1}. ${m.name}</button>`).join(''); }
 function selectMenuForResult(idx){ tempResult[activeSlot]=idx; const next=tempResult.indexOf(null); if(next!==-1) activeSlot=next; renderResultUI(); }
 
-function showResult(){ if(tempResult.includes(null))return alert("すべての結果を入力してください"); const shop=$('shopName').value||'王将'; $('finalTitle').innerText=`${shop} グランプリ`; let totalOdds=1.0; const resHtml=tempResult.map((idx,i)=>{ totalOdds*=parseFloat(menus[idx].odds); return `${i+1}着: ${menus[idx].name}`; }).join('<br>'); $('finalResult').innerHTML=resHtml; $('finalOdds').innerText=`3連単: ${totalOdds.toFixed(1)}倍`; const winners=players.filter(p=>JSON.stringify(p.prediction)===JSON.stringify(tempResult)); $('finalWinners').innerHTML = winners.length>0?`🎉 的中！<br>${winners.map(w=>w.name).join(', ')}`:'的中者なし...'; show('screen-ticket'); }
+// --- 結果発表（履歴保存追加） ---
+function showResult(){
+  if(tempResult.includes(null))return alert("すべての結果を入力してください");
+  const shop=$('shopName').value||'王将';
+  $('finalTitle').innerText=`${shop} グランプリ`;
+  let totalOdds=1.0;
+  const resHtml=tempResult.map((idx,i)=>{
+    totalOdds*=parseFloat(menus[idx].odds);
+    return `${i+1}着: ${menus[idx].name}`;
+  }).join('<br>');
+  $('finalResult').innerHTML=resHtml;
+  $('finalOdds').innerText=`3連単: ${totalOdds.toFixed(1)}倍`;
+  const winners=players.filter(p=>JSON.stringify(p.prediction)===JSON.stringify(tempResult));
+  $('finalWinners').innerHTML = winners.length>0?`🎉 的中！<br>${winners.map(w=>w.name).join(', ')}`:'的中者なし...';
 
+  // --- 履歴に追加 ---
+  const now = new Date();
+  const historyEntry = {
+    datetime: now.toLocaleString(),
+    shop: shop,
+    raceName: "グランプリ",
+    results: tempResult.map((idx,i)=>({rank:i+1, menu:menus[idx].name, odds:menus[idx].odds}))
+  };
+  history.unshift(historyEntry);
+  if(history.length>10) history.pop();
+
+  show('screen-ticket');
+}
+
+// --- 履歴表示 ---
+function showHistory(){
+  const list = $('historyList');
+  if(history.length===0){ list.innerHTML='履歴がありません'; show('screen-history'); return; }
+  list.innerHTML = history.map(h=>{
+    let rows = h.results.map(r=>`<tr><td>${r.rank}</td><td>${r.menu}</td><td>${r.odds}倍</td></tr>`).join('');
+    return `<div style="margin-bottom:15px; border:1px solid #ccc; padding:10px; border-radius:6px;">
+      <b>${h.datetime} / ${h.shop} / ${h.raceName}</b>
+      <table><tr><th>着順</th><th>メニュー名</th><th>確定オッズ</th></tr>${rows}</table>
+    </div>`;
+  }).join('');
+  show('screen-history');
+}
+
+// --- 初期化 ---
 function resetAll(){ if(!confirm("データをすべて消して最初から戻りますか？")) return; menus=[]; players=[]; currentPlayerIndex=0; $('menuList').innerHTML='<div style="text-align:center; color:#888;">メニューを追加してください</div>'; $('playerList').innerHTML='参加者がいません'; $('shopName').value=''; $('menuName').value=''; $('playerName').value=''; show('screen-menu'); }
 
 </script>
