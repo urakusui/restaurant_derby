@@ -9,99 +9,80 @@
 body { font-family: sans-serif; background: #f5f5f5; padding: 15px; margin: 0; color: #333; }
 * { box-sizing: border-box; }
 
-/* 画面の表示・非表示制御 */
-.hidden { display: none !important; }
-
 /* カードスタイル */
-.box { background: #fff; padding: 20px; margin-bottom: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+.box { 
+  background: #fff; 
+  padding: 20px; 
+  margin-bottom: 20px; 
+  border-radius: 12px; 
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1); 
+}
 
-/* ヘッダー（タイトルと？ボタンを横並び） */
+/* ヘッダー */
 .header-row {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
-  border-bottom: 2px solid #eee;
-  padding-bottom: 10px;
+  margin-bottom: 15px;
 }
-.header-row h2 { flex:1; margin:0; color:#B71C1C; }
-.btn-help {
-  width: 40px; height: 40px; border-radius:50%; background:#666; color:#fff;
-  font-size:20px; font-weight:bold; border:none; cursor:pointer;
-  display:flex; justify-content:center; align-items:center;
-}
+.header-row h2 { margin: 0; color: #B71C1C; }
 
-/* 入力・ボタン共通 */
-input, button { width:100%; margin:8px 0; padding:12px; font-size:16px; border-radius:6px; border:1px solid #ccc; }
-button { border:none; font-weight:bold; color:#fff; cursor:pointer; transition:opacity 0.2s; }
-button:active { transform:scale(0.98); }
+/* 入力・ボタン */
+input, button { width: 100%; margin: 8px 0; padding: 12px; font-size: 16px; border-radius: 6px; border: 1px solid #ccc; }
+button { border: none; font-weight: bold; color: #fff; cursor: pointer; transition: opacity 0.2s; }
+button:active { transform: scale(0.98); }
 
 /* ボタンの色 */
-.btn-main { background:#B71C1C; }
-.btn-add { background:#2E7D32; }
-.btn-back { background:#616161; }
-.btn-del { background:#f44336; margin-left:10px; padding:5px 12px; font-size:14px; cursor:pointer; }
+.btn-main { background: #B71C1C; } /* 赤 */
+.btn-add { background: #2E7D32; }  /* 緑 */
+.btn-back { background: #616161; } /* グレー */
+.btn-del { background: #f44336; margin-left: 10px; padding: 5px 12px; font-size: 14px; cursor: pointer; }
 
 /* リスト表示 */
-.list-area { margin:15px 0; max-height:300px; overflow-y:auto; }
-.list-item { display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #eee; padding:10px 0; }
+.list-area { margin: 15px 0; max-height: 300px; overflow-y: auto; }
+.list-item { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding: 10px 0; }
 
-/* モーダル */
-.modal-overlay {
-  position: fixed; top:0; left:0; width:100%; height:100%;
-  background: rgba(0,0,0,0.7); z-index:9999; display:flex; justify-content:center; align-items:center;
-}
-.modal-content {
-  background:#fff; width:90%; max-width:450px; padding:25px; border-radius:10px;
-}
+/* 遊び方 */
+.help-text { background:#fff3cd; padding:15px; border:1px solid #ffeeba; border-radius:6px; margin-bottom:15px; }
 
-/* 出走表テーブル */
-table { width:100%; border-collapse:collapse; margin-top:10px; }
-th, td { border:1px solid #ccc; padding:10px; text-align:center; font-size:14px; }
-th { background:#eee; }
-/* 枠番ごとの色 */
-.waku-1 { color:#000; } .waku-2 { background:#333; color:#fff; }
-.waku-3 { background:#f44336; color:#fff; } .waku-4 { background:#2196f3; color:#fff; }
-.waku-5 { background:#ffeb3b; color:#000; } .waku-6 { background:#4caf50; color:#fff; }
-.waku-7 { background:#ff9800; color:#fff; } .waku-8 { background:#ffc0cb; color:#000; }
+/* 出走表 */
+table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+th, td { border: 1px solid #ccc; padding: 10px; text-align: center; font-size: 14px; }
+th { background: #eee; }
+.waku-1 { color: #000; } .waku-2 { background: #333; color: #fff; }
+.waku-3 { background: #f44336; color: #fff; } .waku-4 { background: #2196f3; color: #fff; }
+.waku-5 { background: #ffeb3b; color: #000; } .waku-6 { background: #4caf50; color: #fff; }
+.waku-7 { background: #ff9800; color: #fff; } .waku-8 { background: #ffc0cb; color: #000; }
 </style>
 </head>
 <body>
 
-<!-- ヘルプモーダル -->
-<div id="modal-help" class="modal-overlay hidden">
-  <div class="modal-content">
-    <h3>📖 遊び方</h3>
-    <ul style="padding-left:20px; line-height:1.8;">
-      <li><b>メニュー登録：</b> 3品以上入力。（最大8品）</li>
-      <li><b>出走表：</b> 「出走表を確認」でオッズ表示。</li>
-      <li><b>予想：</b> 参加者を登録して到着順を予想。</li>
-      <li><b>結果：</b> 料理が届いた順に入力して結果発表！</li>
-    </ul>
-    <button type="button" class="btn-main" onclick="toggleModal()">閉じる</button>
-  </div>
-</div>
-
-<!-- メニュー登録画面 -->
 <div id="screen-menu" class="box">
   <div class="header-row">
     <h2>王将ダービー</h2>
-    <button type="button" class="btn-help" onclick="toggleModal()">？</button>
   </div>
 
-  <input id="shopName" placeholder="店舗名（例：大阪王将）">
+  <div id="helpArea" class="help-text">
+    <b>遊び方:</b>
+    <ul style="padding-left:20px; line-height:1.6;">
+      <li>メニュー登録：頼む料理・ドリンクを3つ以上入力（最大8品）。</li>
+      <li>出走表：「出走表を確認」ボタンでオッズを表示。</li>
+      <li>予想：参加者を登録し、料理の到着順（1〜3着）を予想。</li>
+      <li>結果：料理が届いた順に入力して結果発表！</li>
+    </ul>
+  </div>
+
+  <input id="shopName" placeholder="店舗名（例：大阪駅前第2ビル）">
   <input id="menuName" placeholder="メニュー名（例：餃子）">
   <button type="button" class="btn-add" onclick="addMenu()">＋ メニューを追加</button>
-  
+
   <div id="menuList" class="list-area">
-    <div style="color:#888; text-align:center;">メニューを追加してください</div>
+    <div style="text-align:center; color:#888;">メニューを追加してください</div>
   </div>
-  
+
   <button type="button" class="btn-main" onclick="toRaceTable()">🏁 出走表を確認</button>
   <button type="button" class="btn-back" onclick="resetAll()">🗑️ 最初からやり直す</button>
 </div>
 
-<!-- 出走表画面 -->
 <div id="screen-race" class="box hidden">
   <h3>🏁 出走表</h3>
   <div id="raceTableArea"></div>
@@ -112,32 +93,23 @@ th { background:#eee; }
 <script>
 let menus = [];
 let players = [];
-let currentPlayerIndex = 0;
 
 const $ = id => document.getElementById(id);
 
 function show(screenId){
-  ['screen-menu','screen-race','screen-player','screen-predict','screen-result','screen-ticket'].forEach(id=>{
-    $(id).classList.add('hidden');
-  });
+  ['screen-menu','screen-race'].forEach(id=>$(id).classList.add('hidden'));
   $(screenId).classList.remove('hidden');
   window.scrollTo(0,0);
 }
 
-function toggleModal(){
-  $('modal-help').classList.toggle('hidden');
-}
-
+/* --- メニュー --- */
 function addMenu(){
   const val = $('menuName').value.trim();
   if(!val) return;
-  const odds = (Math.random()*8+1.1).toFixed(1);
-  menus.push({name:val, odds:odds});
+  const odds = (Math.random()*8 +1.1).toFixed(1);
+  menus.push({name: val, odds: odds});
   $('menuName').value='';
   renderMenus();
-
-  // ★メニューが3品以上なら自動で出走表画面へ
-  if(menus.length>=3) toRaceTable();
 }
 
 function renderMenus(){
@@ -146,7 +118,6 @@ function renderMenus(){
     list.innerHTML='<div style="text-align:center; color:#888;">メニューを追加してください</div>';
     return;
   }
-  // ★削除ボタンは必ず表示★
   list.innerHTML = menus.map((m,i)=>`
     <div class="list-item">
       <span style="font-weight:bold;">${i+1}. ${m.name}</span>
@@ -160,11 +131,13 @@ function removeMenu(index){
   renderMenus();
 }
 
+/* --- 出走表 --- */
 function toRaceTable(){
   if(menus.length<3) return alert("メニューを3つ以上登録してください");
-  let html = '<table><tr><th>枠</th><th>メニュー名</th><th>オッズ</th></tr>';
+
+  let html='<table><tr><th>枠</th><th>メニュー名</th><th>オッズ</th></tr>';
   menus.forEach((m,i)=>{
-    const waku = Math.min(8, Math.floor(i / Math.max(1, menus.length/8)) + 1);
+    const waku=Math.min(8, Math.floor(i/Math.max(1,menus.length/8))+1);
     html+=`<tr><td class="waku-${waku}">${i+1}</td><td>${m.name}</td><td>${m.odds}倍</td></tr>`;
   });
   html+='</table>';
@@ -172,6 +145,7 @@ function toRaceTable(){
   show('screen-race');
 }
 
+/* --- リセット --- */
 function resetAll(){
   if(!confirm("データをすべて消して最初から戻りますか？")) return;
   menus=[];
@@ -182,8 +156,8 @@ function resetAll(){
   show('screen-menu');
 }
 
-function toPlayerReg(){ show('screen-player'); }
+/* --- 次画面サンプル --- */
+function toPlayerReg(){ alert("参加者登録画面に遷移（未実装）"); }
 </script>
-
 </body>
 </html>
