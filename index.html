@@ -3,219 +3,83 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>王将ダービー</title>
+<title>王将ダービー - 修正版</title>
 <style>
-body { font-family: system-ui, -apple-system; background: #f5f5f5; padding: 10px; overflow-x: hidden; margin: 0; }
+  body { font-family: sans-serif; background: #f5f5f5; margin: 0; padding: 20px; }
+  .box { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); position: relative; }
+  
+  /* モーダルの背景 */
+  .modal-overlay {
+    display: none; /* 最初は隠す */
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.8);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+  }
 
-/* 確実に消すための設定 */
-.hidden { display: none !important; }
+  /* モーダルが「表示中」の時のスタイル */
+  .modal-overlay.is-visible {
+    display: flex;
+  }
 
-.box { background: #fff; padding: 15px; margin-bottom: 12px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); position: relative; }
-input, button { width: 100%; margin: 5px 0; padding: 12px; font-size: 16px; box-sizing: border-box; }
-button { border: none; border-radius: 6px; font-weight: bold; color: #fff; cursor: pointer; transition: 0.2s; }
-button:disabled { background: #ccc !important; cursor: not-allowed; opacity: 0.6; }
-button:active:not(:disabled) { transform: scale(0.96); }
+  .modal-content {
+    background: #fff;
+    padding: 25px;
+    border-radius: 12px;
+    width: 80%;
+    max-width: 400px;
+  }
 
-/* ボタンバリエーション */
-.btn-main { background: linear-gradient(#C62828, #B71C1C); }
-.btn-add { background: linear-gradient(#2E7D32, #1B5E20); }
-.btn-start { background: linear-gradient(#FDD835, #F9A825); color: #000; }
-.btn-back { background: linear-gradient(#616161, #424242); }
-.btn-danger { background: linear-gradient(#EF6C00, #E65100); }
+  .btn-help {
+    position: absolute; top: 10px; right: 10px;
+    width: 40px; height: 40px; border-radius: 50%;
+    background: #444; color: #fff; border: none;
+    font-size: 20px; cursor: pointer;
+  }
 
-/* ヘルプボタン */
-.btn-help { 
-  position: absolute; top: 15px; right: 15px; 
-  width: 35px; height: 35px; padding: 0; 
-  border-radius: 50%; background: #666; 
-  font-size: 20px; color: #fff; 
-  display: flex; align-items: center; justify-content: center;
-  z-index: 10;
-}
-
-/* リスト・メニュー */
-#menuList, #playerList, #historyList { max-height: 250px; overflow-y: auto; margin: 10px 0; padding: 10px; background: #f0f0f0; border-radius: 6px; font-size: 16px; line-height: 1.6; }
-.menu-item { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ddd; padding: 8px 0; }
-.btn-del { width: auto !important; padding: 4px 12px !important; font-size: 12px !important; background: #f44336; margin: 0; }
-
-/* モーダル */
-.modal-overlay { 
-  position: fixed; top: 0; left: 0; 
-  width: 100%; height: 100%; 
-  background: rgba(0,0,0,0.7); 
-  z-index: 99999; 
-  display: flex; justify-content: center; align-items: center; 
-}
-.modal-content { 
-  background: #fff; width: 85%; max-width: 400px; 
-  padding: 25px; border-radius: 12px; 
-  box-shadow: 0 5px 20px rgba(0,0,0,0.3);
-}
-.modal-content h3 { margin-top: 0; color: #B71C1C; border-bottom: 2px solid #B71C1C; padding-bottom: 10px; }
-
-/* 出走表 */
-.race-table { width: 100%; border-collapse: collapse; margin-top: 10px; background: #fff; }
-.race-table th, .race-table td { border: 1px solid #ccc; padding: 8px; text-align: center; font-size: 14px; color: #333; }
-.race-table th { background: #eee; }
-.waku-1 { background: #fff; color: #000; }
-.waku-2 { background: #333; color: #fff; }
-.waku-3 { background: #f44336; color: #fff; }
-.waku-4 { background: #2196f3; color: #fff; }
-.waku-5 { background: #ffeb3b; color: #000; }
-.waku-6 { background: #4caf50; color: #fff; }
-.waku-7 { background: #ff9800; color: #fff; }
-.waku-8 { background: #ffc0cb; color: #000; }
-
-.result-slot { padding: 12px; border: 1px solid #ddd; margin: 5px 0; border-radius: 6px; background: #fafafa; cursor: pointer; }
-.result-slot.active { border: 2px solid #F9A825; background: #fffde7; font-weight: bold; }
+  button { width: 100%; padding: 12px; margin-top: 10px; cursor: pointer; border: none; border-radius: 6px; font-weight: bold; }
+  .btn-close { background: #C62828; color: #fff; }
+  .btn-main { background: #2E7D32; color: #fff; }
+  
+  ul { padding-left: 20px; line-height: 1.6; }
 </style>
 </head>
 <body>
 
-<div id="modal-help" class="modal-overlay hidden">
-  <div class="modal-content">
+<div class="box">
+  <h2>王将ダービー</h2>
+  <button type="button" class="btn-help" onclick="toggleHelp()">？</button>
+  
+  <p>メニューを登録してレースを開始してください。</p>
+  <button class="btn-main">出走表を作成（テスト用）</button>
+</div>
+
+<div id="modal-help" class="modal-overlay" onclick="toggleHelp()">
+  <div class="modal-content" onclick="event.stopPropagation()">
     <h3>遊び方ガイド</h3>
-    <ol style="padding-left: 20px; line-height: 1.8; margin-bottom: 20px;">
-      <li>メニューを3点以上追加します</li>
-      <li>出走表でオッズを確認します</li>
-      <li>参加者を追加し、順位を予想します</li>
-      <li>料理が届いた順に結果を入力します</li>
-    </ol>
-    <button type="button" class="btn-main" onclick="toggleHelp()">閉じる</button>
+    <ul>
+      <li>メニューを3つ以上入力します。</li>
+      <li>「出走表」で各メニューの倍率を確認。</li>
+      <li>誰が届くか予想して、到着順に入力。</li>
+      <li>見事的中すればポイントゲット！</li>
+    </ul>
+    <button type="button" class="btn-close" onclick="toggleHelp()">閉じる</button>
   </div>
 </div>
 
-<div id="screen-menu" class="box">
-  <h2>王将ダービー</h2>
-  <button type="button" class="btn-help" onclick="toggleHelp()">？</button>
-  <input id="shopInput" placeholder="店名">
-  <input id="menuInput" placeholder="メニュー名">
-  <button type="button" class="btn-add" onclick="addMenu()">メニュー追加</button>
-  <div id="menuList">メニューを追加してください</div>
-  <button type="button" class="btn-main" onclick="prepareRace()">出走表を確認</button>
-</div>
-
-<div id="screen-race-table" class="box hidden">
-  <h3>出走表</h3>
-  <div id="raceTableContainer"></div>
-  <button type="button" class="btn-main" style="margin-top:15px;" onclick="startPlayers()">参加者登録へ</button>
-  <button type="button" class="btn-back" onclick="show('screen-menu')">戻る</button>
-</div>
-
-<div id="screen-player" class="box hidden">
-  <h3>参加者登録</h3>
-  <input id="playerInput" placeholder="参加者名">
-  <button type="button" class="btn-add" onclick="addPlayer()">参加者を追加</button>
-  <div id="playerList">参加者がいません</div>
-  <button type="button" class="btn-start" onclick="startPrediction()">予想開始</button>
-</div>
-
-<div id="screen-prediction" class="box hidden">
-  <h3 id="playerTitle"></h3>
-  <div id="menuChoices"></div>
-  <button type="button" class="btn-main" onclick="savePrediction()">確定</button>
-</div>
-
 <script>
-let menus = [];
-let players = [];
-let currentPlayer = 0;
-const $ = (id) => document.getElementById(id);
-
-// 画面遷移の基本関数
-function show(id) {
-  const screens = ["screen-menu", "screen-race-table", "screen-player", "screen-prediction"];
-  screens.forEach(s => {
-    const el = $(s);
-    if(el) el.classList.add("hidden");
-  });
-  const target = $(id);
-  if(target) target.classList.remove("hidden");
-}
-
-// モーダル開閉
-function toggleHelp() {
-  const modal = $("modal-help");
-  if (modal.classList.contains("hidden")) {
-    modal.classList.remove("hidden");
-  } else {
-    modal.classList.add("hidden");
+  /**
+   * ヘルプを表示・非表示にする関数
+   */
+  function toggleHelp() {
+    const modal = document.getElementById('modal-help');
+    // クラス「is-visible」があれば消し、なければ付ける
+    modal.classList.toggle('is-visible');
   }
-}
-
-// メニュー追加
-function addMenu() {
-  const input = $("menuInput");
-  const val = input.value.trim();
-  if(!val) return;
-  menus.push({ name: val, odds: (Math.random() * 10 + 1).toFixed(1) });
-  input.value = "";
-  renderMenuList();
-}
-
-// メニューリスト描画（削除ボタン含む）
-function renderMenuList() {
-  const list = $("menuList");
-  if (menus.length === 0) {
-    list.innerHTML = "メニューを追加してください";
-    return;
-  }
-  list.innerHTML = menus.map((m, i) => `
-    <div class="menu-item">
-      <span>${m.name}</span>
-      <button type="button" class="btn-del" onclick="removeMenu(${i})">削除</button>
-    </div>
-  `).join("");
-}
-
-// 削除機能
-function removeMenu(index) {
-  menus.splice(index, 1);
-  renderMenuList();
-}
-
-// 出走表の生成
-function prepareRace() {
-  if (menus.length < 3) {
-    alert("メニューを3つ以上登録してください");
-    return;
-  }
-  let html = `<table class="race-table"><tr><th>枠</th><th>メニュー</th><th>オッズ</th></tr>`;
-  menus.forEach((m, i) => {
-    const waku = Math.min(8, Math.floor(i / Math.max(1, menus.length / 8)) + 1);
-    html += `<tr><td class="waku-${waku}">${i+1}</td><td>${m.name}</td><td>${m.odds}倍</td></tr>`;
-  });
-  html += `</table>`;
-  $("raceTableContainer").innerHTML = html;
-  show("screen-race-table");
-}
-
-// 参加者追加
-function addPlayer() {
-  const input = $("playerInput");
-  const val = input.value.trim();
-  if(!val) return;
-  players.push({ name: val, prediction: [] });
-  input.value = "";
-  $("playerList").innerHTML = players.map(p => `・ ${p.name}`).join("<br>");
-}
-
-function startPlayers() { show("screen-player"); }
-
-function startPrediction() {
-  if (players.length === 0) return alert("参加者を追加してください");
-  currentPlayer = 0;
-  setupPrediction();
-}
-
-function setupPrediction() {
-  if (currentPlayer >= players.length) {
-    alert("全員の予想が完了しました。本来はここで結果入力へ移ります。");
-    return;
-  }
-  $("playerTitle").innerText = `${players[currentPlayer].name}の予想`;
-  show("screen-prediction");
-}
 </script>
+
 </body>
 </html>
