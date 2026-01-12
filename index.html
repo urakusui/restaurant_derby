@@ -257,8 +257,11 @@ function showPrediction() {
   activePredictSlot = 0;
   updatePredictSlots();
   menuChoices.innerHTML = menus.map((m,i)=>
-    `<button onclick="selectMenu(${i+1})">${i+1}. ${m.name}</button>`
+    `<button onclick="selectMenu(${i+1})">
+       ${i+1}. ${m.name}（${m.odds}倍）
+     </button>`
   ).join("");
+
   playerTitle.innerText = `予想：${p.name}`;
   show("screen-prediction");
 }
