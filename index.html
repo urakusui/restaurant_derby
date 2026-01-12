@@ -7,36 +7,44 @@
 <style>
 body { font-family: system-ui, -apple-system; background: #f5f5f5; padding: 10px; overflow-x: hidden; margin: 0; }
 .hidden { display: none !important; }
-.box { background: #fff; padding: 15px; margin-bottom: 12px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+.box { background: #fff; padding: 15px; margin-bottom: 12px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); position: relative; }
 input, button { width: 100%; margin: 5px 0; padding: 12px; font-size: 16px; box-sizing: border-box; }
 button { border: none; border-radius: 6px; font-weight: bold; color: #fff; cursor: pointer; transition: 0.2s; }
 button:disabled { background: #ccc !important; cursor: not-allowed; opacity: 0.6; }
 button:active:not(:disabled) { transform: scale(0.96); }
 
+/* ボタンバリエーション */
 .btn-main { background: linear-gradient(#C62828, #B71C1C); }
 .btn-add { background: linear-gradient(#2E7D32, #1B5E20); }
 .btn-start { background: linear-gradient(#FDD835, #F9A825); color: #000; }
 .btn-back { background: linear-gradient(#616161, #424242); }
 .btn-danger { background: linear-gradient(#EF6C00, #E65100); }
+.btn-help { position: absolute; top: 15px; right: 15px; width: 32px; height: 32px; padding: 0; border-radius: 50%; background: #9e9e9e; font-size: 18px; line-height: 32px; }
 
+/* リスト・メニュー */
 #menuList, #playerList, #historyList { max-height: 250px; overflow-y: auto; margin: 10px 0; padding: 10px; background: #f0f0f0; border-radius: 6px; font-size: 16px; line-height: 1.6; }
+.menu-item { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ddd; padding: 8px 0; }
+.btn-del { width: auto; padding: 4px 10px; font-size: 12px; background: #f44336; margin: 0; }
 
-.menu-item { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ddd; padding: 4px 0; }
-.btn-del { width: auto; padding: 4px 8px; font-size: 12px; background: #f44336; margin-left: 10px; }
+/* モーダルスタイル */
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 10000; display: flex; justify-content: center; align-items: center; }
+.modal-content { background: #fff; width: 85%; max-width: 400px; padding: 20px; border-radius: 12px; position: relative; }
+.modal-content h3 { margin-top: 0; color: #B71C1C; border-bottom: 2px solid #B71C1C; padding-bottom: 5px; }
+.modal-content ol { padding-left: 20px; line-height: 1.8; }
 
-.result-slot { padding: 12px; border: 1px solid #ddd; margin: 5px 0; border-radius: 6px; background: #fafafa; cursor: pointer; position: relative; }
-.result-slot.active { border: 2px solid #F9A825; background: #fffde7; font-weight: bold; }
-.result-slot::after { content: "修正"; position: absolute; right: 12px; font-size: 11px; color: #999; }
-
-/* 出走表用スタイル */
+/* 出走表 */
 .race-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-.race-table th, .race-table td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+.race-table th, .race-table td { border: 1px solid #ccc; padding: 8px; text-align: center; font-size: 14px; }
 .race-table th { background: #eee; }
 .waku-1 { background: #fff; } .waku-2 { background: #333; color:#fff; } .waku-3 { background: #f44336; color:#fff; }
 .waku-4 { background: #2196f3; color:#fff; } .waku-5 { background: #ffeb3b; } .waku-6 { background: #4caf50; color:#fff; }
 .waku-7 { background: #ff9800; color:#fff; } .waku-8 { background: #ffc0cb; }
 
-.result-card { border: 2px solid #333; border-radius: 12px; background: #fff; overflow: hidden; position: relative; }
+/* 判定・結果 */
+.result-slot { padding: 12px; border: 1px solid #ddd; margin: 5px 0; border-radius: 6px; background: #fafafa; cursor: pointer; position: relative; }
+.result-slot.active { border: 2px solid #F9A825; background: #fffde7; font-weight: bold; }
+.result-slot::after { content: "修正"; position: absolute; right: 12px; font-size: 11px; color: #999; }
+.result-card { border: 2px solid #333; border-radius: 12px; background: #fff; overflow: hidden; }
 .card-header { background: #B71C1C; color: #fff; padding: 10px; text-align: center; }
 .card-body { padding: 20px; text-align: center; }
 .card-row { margin: 10px 0; padding: 8px 0; border-bottom: 1px dashed #eee; }
@@ -45,33 +53,40 @@ button:active:not(:disabled) { transform: scale(0.96); }
 .card-odds { font-size: 24px; color: #C62828; font-weight: 900; }
 .card-winners { font-size: 20px; color: #2E7D32; background: #e8f5e9; padding: 10px; border-radius: 8px; }
 
-.odds-tag { color: #888; margin-left: 6px; font-size: 0.9em; }
 .confetti { position: fixed; width: 10px; height: 10px; bottom: -20px; z-index: 9999; pointer-events: none; animation: fountain var(--duration) ease-out forwards; }
 @keyframes fountain {
   0% { transform: translateY(0) translateX(0) rotate(0deg); opacity: 1; }
-  50% { opacity: 1; }
   100% { transform: translateY(var(--y)) translateX(var(--x)) rotate(720deg); opacity: 0; }
 }
 </style>
 </head>
 <body>
 
+<div id="modal-help" class="modal-overlay hidden" onclick="toggleHelp()">
+  <div class="modal-content" onclick="event.stopPropagation()">
+    <h3>遊び方ガイド</h3>
+    <ol>
+      <li><b>メニューを3点以上</b>追加します。</li>
+      <li>店名を入力し「出走表」を確認します。</li>
+      <li>参加者を追加し、1〜3着を予想します。</li>
+      <li>料理が届いた順に結果を入力します。</li>
+      <li>的中者がいれば豪華賞品（？）を！</li>
+    </ol>
+    <button class="btn-main" onclick="toggleHelp()">閉じる</button>
+  </div>
+</div>
+
 <div id="screen-menu" class="box">
   <h2>王将ダービー</h2>
-  <div style="font-size: 13px; color: #555; background: #fffde7; padding: 8px 12px; border-radius: 8px; margin: 0 0 10px 0;">
-    <b style="color: #B71C1C; display: block; margin-bottom: 2px;">【遊び方ガイド】</b>
-    <ol style="margin: 0; padding-left: 1.5em; line-height: 1.4;">
-      <li>メニューを<b>3点以上</b>追加</li>
-      <li>参加者を登録し、それぞれ1〜3着を予想</li>
-      <li>届いた順に結果を入力して発表！</li>
-    </ol>
-  </div>
+  <button class="btn-help" onclick="toggleHelp()">？</button>
+
   <input id="shopInput" placeholder="店名（例：京都王将 ◯◯店）" list="shopHistory">
   <datalist id="shopHistory"></datalist>
   <input id="menuInput" placeholder="メニュー名" list="menuHistory">
   <datalist id="menuHistory"></datalist>
   <button class="btn-add" onclick="addMenu()">メニュー追加</button>
   <div id="menuList">メニューを追加してください</div>
+  
   <button class="btn-main" onclick="prepareRace()">出走表を確認</button>
   <button class="btn-back" onclick="showHistory()">履歴を見る</button>
   <button class="btn-danger" onclick="clearTopCache()">メニューをクリア</button>
@@ -149,13 +164,17 @@ const $ = (id) => document.getElementById(id);
 function show(id){
   const allScreens = ["screen-menu", "screen-history", "screen-player", "screen-prediction", "screen-result", "screen-ticket", "screen-race-table"];
   allScreens.forEach(s => { const el = $(s); if(el) el.classList.add("hidden"); });
-  const target = $(id);
-  if(target) target.classList.remove("hidden");
+  $(id).classList.remove("hidden");
   window.scrollTo(0, 0);
+}
+
+function toggleHelp() {
+  $("modal-help").classList.toggle("hidden");
 }
 
 function today(){ const d=new Date(); return `${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}`; }
 
+// 履歴読み込み
 function loadAllHistories(){
   $("shopHistory").innerHTML = JSON.parse(localStorage.getItem("shopNameHistory")||"[]").map(v=>`<option value="${v}">`).join("");
   $("menuHistory").innerHTML = JSON.parse(localStorage.getItem("menuNameHistory")||"[]").map(v=>`<option value="${v}">`).join("");
@@ -166,10 +185,7 @@ window.onload = loadAllHistories;
 function addMenu(){
   const val = $("menuInput").value.trim();
   if(!val) return;
-  if (menus.some(m => m.name === val)) {
-    alert("そのメニューは既に追加されています。");
-    return;
-  }
+  if (menus.some(m => m.name === val)) return alert("追加済みです");
   menus.push({name: val}); 
   renderMenuList();
   saveToHistory("menuNameHistory", val);
@@ -191,20 +207,16 @@ function removeMenu(i) {
 }
 
 function saveToHistory(key, val) {
-  let h = JSON.parse(localStorage.getItem(key)|="[]");
+  let h = JSON.parse(localStorage.getItem(key)||"[]");
   if(!h.includes(val)){ h.unshift(val); localStorage.setItem(key, JSON.stringify(h.slice(0,20))); loadAllHistories(); }
 }
 
-// ロジック改善：オッズの算出（正規化）
 function calculateOdds() {
-  // 各メニューにランダムな「重み（人気度）」を割り当てる
   let weights = menus.map(() => Math.random() * 10 + 1);
   let totalWeight = weights.reduce((a, b) => a + b, 0);
-  
   menus.forEach((m, i) => {
-    let probability = weights[i] / totalWeight;
-    // オッズ = 1 / 確率（少し控除率を考慮して調整）
-    m.odds = ( (1 / probability) * 0.8 ).toFixed(1);
+    let prob = weights[i] / totalWeight;
+    m.odds = ( (1 / prob) * 0.85 ).toFixed(1);
     if(parseFloat(m.odds) < 1.1) m.odds = "1.1";
   });
 }
@@ -212,20 +224,20 @@ function calculateOdds() {
 function prepareRace() {
   if(menus.length < 3) return alert("メニューを3つ以上登録してください");
   calculateOdds();
-  
+  const shop = $("shopInput").value.trim();
+  if(shop) saveToHistory("shopNameHistory", shop);
+
   let html = `<table class="race-table"><tr><th>枠</th><th>メニュー</th><th>単勝オッズ</th></tr>`;
   menus.forEach((m, i) => {
-    const wakuNum = Math.floor(i / (menus.length / 8 + 0.1)) + 1;
-    html += `<tr><td class="waku-${wakuNum}">${i+1}</td><td>${m.name}</td><td>${m.odds}</td></tr>`;
+    const wakuNum = Math.min(8, Math.floor(i / (Math.max(1, menus.length / 8))) + 1);
+    html += `<tr><td class="waku-${wakuNum}">${i+1}</td><td>${m.name}</td><td>${m.odds}倍</td></tr>`;
   });
   html += `</table>`;
   $("raceTableContainer").innerHTML = html;
   show("screen-race-table");
 }
 
-function startPlayers(){
-  show("screen-player");
-}
+function startPlayers(){ show("screen-player"); }
 
 function addPlayer(){
   const val = $("playerInput").value.trim();
@@ -235,8 +247,6 @@ function addPlayer(){
   saveToHistory("playerHistory", val);
   $("playerInput").value = "";
 }
-
-/* --- 予想・結果ロジック（基本踏襲しつつ最適化） --- */
 
 function clearPredictSlot(i){ tempPrediction[i] = null; activePredictSlot = i; updatePredictUI(); }
 
@@ -338,7 +348,6 @@ function judge(){
   const historyData = JSON.parse(localStorage.getItem("chukaHistory") || "[]");
   historyData.unshift({ title: raceTitle, date: today(), res: tempResult.map(n => menus[n-1].name), odds: finalOdds, winners: winners });
   localStorage.setItem("chukaHistory", JSON.stringify(historyData.slice(0, 10)));
-
   show("screen-ticket");
 }
 
