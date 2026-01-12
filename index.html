@@ -372,12 +372,16 @@ function judge() {
 /* 履歴表示 */
 function saveHistory() { alert("履歴は自動保存済みです"); }
 function showHistory() {
+  const listEl = document.getElementById("historyList");
+  if (!listEl) return alert("historyListが見つかりません");
+
   const h = JSON.parse(localStorage.getItem("chukaHistory") || "[]");
-  historyList.innerHTML = h.map(v=>{
+  listEl.innerHTML = h.map(v=>{
     const menuList = v.menus.map((m,i)=>`${i+1}着：${m.name}（${m.odds}倍）`).join("<br>");
     const winnerText = v.winners.length ? `当たった人：${v.winners.join("、")}` : "";
     return `<strong>${v.title}</strong><br>${v.date}<br>${menuList}<br><strong>確定オッズ：</strong>${v.combinedOdds}倍<br>${winnerText}`;
   }).join("<hr>");
+
   show("screen-history");
 }
 
