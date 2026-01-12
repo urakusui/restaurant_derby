@@ -6,7 +6,10 @@
 <title>王将ダービー</title>
 <style>
 body { font-family: system-ui, -apple-system; background: #f5f5f5; padding: 10px; overflow-x: hidden; margin: 0; }
-.hidden { display: none !important; }
+
+/* !importantを外し、JavaScriptでの制御を優先させる */
+.hidden { display: none; }
+
 .box { background: #fff; padding: 15px; margin-bottom: 12px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); position: relative; }
 input, button { width: 100%; margin: 5px 0; padding: 12px; font-size: 16px; box-sizing: border-box; }
 button { border: none; border-radius: 6px; font-weight: bold; color: #fff; cursor: pointer; transition: 0.2s; }
@@ -19,17 +22,36 @@ button:active:not(:disabled) { transform: scale(0.96); }
 .btn-start { background: linear-gradient(#FDD835, #F9A825); color: #000; }
 .btn-back { background: linear-gradient(#616161, #424242); }
 .btn-danger { background: linear-gradient(#EF6C00, #E65100); }
-.btn-help { position: absolute; top: 15px; right: 15px; width: 32px; height: 32px; padding: 0; border-radius: 50%; background: #9e9e9e; font-size: 18px; line-height: 32px; }
+
+/* ヘルプボタンを目立たせる */
+.btn-help { 
+  position: absolute; top: 15px; right: 15px; 
+  width: 35px; height: 35px; padding: 0; 
+  border-radius: 50%; background: #666; 
+  font-size: 20px; color: #fff; 
+  display: flex; align-items: center; justify-content: center;
+  z-index: 10;
+}
 
 /* リスト・メニュー */
 #menuList, #playerList, #historyList { max-height: 250px; overflow-y: auto; margin: 10px 0; padding: 10px; background: #f0f0f0; border-radius: 6px; font-size: 16px; line-height: 1.6; }
 .menu-item { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ddd; padding: 8px 0; }
 .btn-del { width: auto !important; padding: 4px 10px !important; font-size: 12px !important; background: #f44336; margin: 0; }
 
-/* モーダルスタイル */
-.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 10000; display: flex; justify-content: center; align-items: center; }
-.modal-content { background: #fff; width: 85%; max-width: 400px; padding: 20px; border-radius: 12px; position: relative; }
-.modal-content h3 { margin-top: 0; color: #B71C1C; border-bottom: 2px solid #B71C1C; padding-bottom: 5px; }
+/* モーダル表示の改善 */
+.modal-overlay { 
+  position: fixed; top: 0; left: 0; 
+  width: 100%; height: 100%; 
+  background: rgba(0,0,0,0.7); 
+  z-index: 99999; 
+  display: flex; justify-content: center; align-items: center; 
+}
+.modal-content { 
+  background: #fff; width: 85%; max-width: 400px; 
+  padding: 25px; border-radius: 12px; 
+  box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+}
+.modal-content h3 { margin-top: 0; color: #B71C1C; border-bottom: 2px solid #B71C1C; padding-bottom: 10px; }
 
 /* 出走表 */
 .race-table { width: 100%; border-collapse: collapse; margin-top: 10px; background: #fff; }
@@ -44,7 +66,6 @@ button:active:not(:disabled) { transform: scale(0.96); }
 .waku-7 { background: #ff9800; color: #fff; }
 .waku-8 { background: #ffc0cb; color: #000; }
 
-/* 判定・結果 */
 .result-slot { padding: 12px; border: 1px solid #ddd; margin: 5px 0; border-radius: 6px; background: #fafafa; cursor: pointer; position: relative; }
 .result-slot.active { border: 2px solid #F9A825; background: #fffde7; font-weight: bold; }
 .result-card { border: 2px solid #333; border-radius: 12px; background: #fff; overflow: hidden; }
@@ -64,13 +85,13 @@ button:active:not(:disabled) { transform: scale(0.96); }
 </head>
 <body>
 
-<div id="modal-help" class="modal-overlay hidden" onclick="toggleHelp()">
-  <div class="modal-content" onclick="event.stopPropagation()">
+<div id="modal-help" class="modal-overlay hidden">
+  <div class="modal-content">
     <h3>遊び方ガイド</h3>
-    <ol style="padding-left: 20px; line-height: 1.8;">
+    <ol style="padding-left: 20px; line-height: 1.8; margin-bottom: 20px;">
       <li><b>メニューを3点以上</b>追加します。</li>
-      <li>「出走表を確認」で各メニューのオッズを確認。</li>
-      <li>参加者を追加し、料理の到着順（1〜3着）を予想。</li>
+      <li>「出走表を確認」で各メニューのオッズを生成。</li>
+      <li>参加者を追加し、1〜3着を予想。</li>
       <li>料理が届いた順に結果を入力。</li>
     </ol>
     <button class="btn-main" onclick="toggleHelp()">閉じる</button>
@@ -79,7 +100,7 @@ button:active:not(:disabled) { transform: scale(0.96); }
 
 <div id="screen-menu" class="box">
   <h2>王将ダービー</h2>
-  <button class="btn-help" onclick="toggleHelp()">？</button>
+  <button type="button" class="btn-help" onclick="toggleHelp()">？</button>
   <input id="shopInput" placeholder="店名" list="shopHistory">
   <datalist id="shopHistory"></datalist>
   <input id="menuInput" placeholder="メニュー名" list="menuHistory">
@@ -160,6 +181,7 @@ button:active:not(:disabled) { transform: scale(0.96); }
 let menus=[], players=[], currentPlayer=0, tempPrediction=[null,null,null], tempResult=[null,null,null], activePredictSlot=0, activeResultSlot=0;
 const $ = (id) => document.getElementById(id);
 
+// 画面遷移
 function show(id){
   const allScreens = ["screen-menu", "screen-history", "screen-player", "screen-prediction", "screen-result", "screen-ticket", "screen-race-table"];
   allScreens.forEach(s => { 
@@ -171,7 +193,15 @@ function show(id){
   window.scrollTo(0, 0);
 }
 
-function toggleHelp() { $("modal-help").classList.toggle("hidden"); }
+// ヘルプ表示切り替え
+function toggleHelp() {
+  const modal = $("modal-help");
+  if(modal.classList.contains("hidden")) {
+    modal.classList.remove("hidden");
+  } else {
+    modal.classList.add("hidden");
+  }
+}
 
 function loadAllHistories(){
   $("shopHistory").innerHTML = JSON.parse(localStorage.getItem("shopNameHistory")||"[]").map(v=>`<option value="${v}">`).join("");
@@ -220,12 +250,10 @@ function prepareRace() {
 
   let html = `<table class="race-table"><thead><tr><th>枠</th><th>メニュー</th><th>単勝オッズ</th></tr></thead><tbody>`;
   menus.forEach((m, i) => {
-    // 枠番計算の修正: メニュー数を8枠に等分。1未満にならないように調整
     const wakuNum = Math.min(8, Math.floor(i / Math.max(1, menus.length / 8)) + 1);
     html += `<tr><td class="waku-${wakuNum}">${i+1}</td><td>${m.name}</td><td>${m.odds}倍</td></tr>`;
   });
   html += `</tbody></table>`;
-  
   $("raceTableContainer").innerHTML = html;
   show("screen-race-table");
 }
