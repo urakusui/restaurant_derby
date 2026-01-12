@@ -259,7 +259,7 @@ function selectResult(n){
 function judge(){
   if(tempResult.filter(n=>n).length < 3) return alert("3位まで選んでください");
   const shop = $("shopInput").value || "王将";
-  const suffixes = ["記念", "S", "GP"];
+  const suffixes = ["記念", "S", "杯", "賞", "カップ"];
   const randomSuffix = suffixes[Math.floor(Math.random() * suffixes.length)];
   const raceTitle = `第11R ${shop}${randomSuffix}`;
   
