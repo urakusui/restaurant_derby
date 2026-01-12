@@ -1,0 +1,399 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="2575.7">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
+    p.p3 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px 'Hiragino Sans'}
+    span.s1 {font: 12.0px 'Hiragino Sans'}
+    span.s2 {font: 12.0px Helvetica}
+    span.s3 {font: 12.0px 'Lucida Grande'}
+    span.s4 {font: 12.0px 'Zapf Dingbats'}
+    span.s5 {font: 12.0px 'Apple Color Emoji'}
+  </style>
+</head>
+<body>
+<p class="p1">&lt;!DOCTYPE html&gt;</p>
+<p class="p1">&lt;html lang="ja"&gt;</p>
+<p class="p1">&lt;head&gt;</p>
+<p class="p1">&lt;meta charset="UTF-8"&gt;</p>
+<p class="p1">&lt;meta name="viewport" content="width=device-width, initial-scale=1"&gt;</p>
+<p class="p1">&lt;title&gt;<span class="s1">王将オーダー到着順ダービー</span>&lt;/title&gt;</p>
+<p class="p2"><br></p>
+<p class="p1">&lt;style&gt;</p>
+<p class="p1">body { font-family: system-ui, sans-serif; margin: 20px; }</p>
+<p class="p1">h2 { border-bottom: 2px solid #000; padding-bottom: 5px; }</p>
+<p class="p1">.hidden { display: none; }</p>
+<p class="p1">input { width: 100%; font-size: 16px; padding: 8px; margin: 5px 0; }</p>
+<p class="p1">button { width: 100%; padding: 10px; font-size: 16px; margin-top: 10px; }</p>
+<p class="p1">.box { border: 1px solid #000; padding: 10px; margin-top: 10px; }</p>
+<p class="p1">.ticket {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>border: 2px dashed #000;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>padding: 15px;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>margin-top: 15px;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>font-family: monospace;</p>
+<p class="p1">}</p>
+<p class="p1">.ticket-title {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>text-align: center;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>font-weight: bold;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>margin-bottom: 10px;</p>
+<p class="p1">}</p>
+<p class="p1">.center {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>text-align: center;</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">&lt;/style&gt;</p>
+<p class="p1">&lt;/head&gt;</p>
+<p class="p2"><br></p>
+<p class="p1">&lt;body&gt;</p>
+<p class="p2"><br></p>
+<p class="p1">&lt;!-- <span class="s1">①</span> <span class="s1">メニュー</span> --&gt;</p>
+<p class="p1">&lt;div id="screen-menu"&gt;</p>
+<p class="p3"><span class="s2"><span class="Apple-converted-space">  </span>&lt;h2&gt;</span>王将オーダー到着順ダービーー<span class="s2">&lt;/h2&gt;</span></p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;input id="shopInput" placeholder="<span class="s1">店名（例：○○飯店）</span>"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;input id="menuInput" placeholder="<span class="s1">料理名を入力</span>"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;button onclick="addMenu()"&gt;<span class="s1">＋</span> <span class="s1">追加</span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;div class="box" id="menuList"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;button onclick="goPlayers()"&gt;<span class="s1">参加者登録へ</span> <span class="s3">→</span>&lt;/button&gt;</p>
+<p class="p1">&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1">&lt;!-- <span class="s1">②</span> <span class="s1">参加者</span> --&gt;</p>
+<p class="p1">&lt;div id="screen-players" class="hidden"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;h2&gt;<span class="s1">参加者登録</span>&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;input id="playerInput" placeholder="<span class="s1">名前を入力</span>"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;button onclick="addPlayer()"&gt;<span class="s1">＋</span> <span class="s1">追加</span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;div class="box" id="playerList"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;button onclick="startPrediction()"&gt;<span class="s1">予想へ進む</span> <span class="s3">→</span>&lt;/button&gt;</p>
+<p class="p1">&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1">&lt;!-- <span class="s1">③</span> <span class="s1">予想</span> --&gt;</p>
+<p class="p1">&lt;div id="screen-prediction" class="hidden"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;h2 id="playerTitle"&gt;&lt;/h2&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>1<span class="s1">着</span> &lt;input id="p1" type="number"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>2<span class="s1">着</span> &lt;input id="p2" type="number"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>3<span class="s1">着</span> &lt;input id="p3" type="number"&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;div class="box" id="menuList2"&gt;&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;button onclick="savePrediction()"&gt;<span class="s1">次の人</span> <span class="s3">→</span>&lt;/button&gt;</p>
+<p class="p1">&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1">&lt;!-- <span class="s1">④</span> <span class="s1">結果</span> --&gt;</p>
+<p class="p1">&lt;div id="screen-result" class="hidden"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;h2&gt;<span class="s1">到着結果</span>&lt;/h2&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>1<span class="s1">着</span> &lt;input id="r1" type="number"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>2<span class="s1">着</span> &lt;input id="r2" type="number"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>3<span class="s1">着</span> &lt;input id="r3" type="number"&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;button onclick="judge()"&gt;<span class="s1">結果発表</span>&lt;/button&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;div class="box" id="judgeResult"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;button onclick="resetApp()"&gt;<span class="s1">最初から</span>&lt;/button&gt;</p>
+<p class="p1">&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1">&lt;!-- <span class="s1">⑤</span> <span class="s1">結果馬券</span> --&gt;</p>
+<p class="p1">&lt;div id="screen-ticket" class="hidden"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;div class="ticket"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="ticket-title"&gt;<span class="s1">王将オーダー到着順ダービー</span>&lt;br&gt;<span class="s1">結果馬券</span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;span id="ticketShop"&gt;&lt;/span&gt;&lt;br&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;span id="ticketDate"&gt;&lt;/span&gt;</p>
+<p class="p1">&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div id="ticketResult"&gt;&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;hr&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div id="ticketWinners"&gt;&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="center"&gt;※ <span class="s1">ごちそうさまでした</span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">   </span>&lt;button onclick="resetApp()"&gt;<span class="s1">最初から</span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">   </span>&lt;button onclick="saveHistory()"&gt;<span class="s1">履歴に保存</span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">   </span>&lt;button onclick="showHistory()"&gt;<span class="s1">履歴を見る</span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1">&lt;!-- <span class="s1">⑥</span> <span class="s1">履歴一覧</span> --&gt;</p>
+<p class="p1">&lt;div id="screen-history" class="hidden"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;h2&gt;<span class="s1">履歴</span>&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;div class="box" id="historyList"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;button onclick="show('screen-menu')"&gt;<span class="s1">戻る</span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;button onclick="showStats()"&gt;<span class="s1">店ごとの戦績を見る</span>&lt;/button&gt;</p>
+<p class="p1">&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1">&lt;!-- <span class="s1">⑦</span> <span class="s1">店ごとの戦績</span> --&gt;</p>
+<p class="p1">&lt;div id="screen-stats" class="hidden"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;h2&gt;<span class="s1">店ごとの戦績</span>&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;div class="box" id="statsList"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;button onclick="show('screen-history')"&gt;<span class="s1">戻る</span>&lt;/button&gt;</p>
+<p class="p1">&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1">&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1">&lt;script&gt;</p>
+<p class="p1">function today() {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const d = new Date();</p>
+<p class="p1"><span class="Apple-converted-space">  </span>return `${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}`;</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">let menus = [];</p>
+<p class="p1">let players = [];</p>
+<p class="p1">let currentPlayer = 0;</p>
+<p class="p2"><br></p>
+<p class="p1">function addMenu() {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const input = menuInput;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if (!input.value) return;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>const odds = (Math.random() * 8 + 1).toFixed(1); // 1.0<span class="s1">～</span>9.0<span class="s1">倍</span></p>
+<p class="p1"><span class="Apple-converted-space">  </span>menus.push({</p>
+<p class="p1"><span class="Apple-converted-space">    </span>name: input.value,</p>
+<p class="p1"><span class="Apple-converted-space">    </span>odds: odds</p>
+<p class="p1"><span class="Apple-converted-space">  </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>input.value = "";</p>
+<p class="p1"><span class="Apple-converted-space">  </span>renderMenus();</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1">function renderMenus() {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const list = menus.map((m, i) =&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>`${i + 1}. ${m.name}<span class="s1">　</span>&lt;span style="float:right"&gt;${m.odds}<span class="s1">倍</span>&lt;/span&gt;`</p>
+<p class="p1"><span class="Apple-converted-space">  </span>).join("&lt;br&gt;");</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>menuList.innerHTML = list;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>menuList2.innerHTML = list;</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1">function goPlayers() {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if (menus.length &lt; 3) return alert("3<span class="s1">品以上登録してください</span>");</p>
+<p class="p1"><span class="Apple-converted-space">  </span>show("screen-players");</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">function addPlayer() {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if (!playerInput.value) return;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>players.push({ name: playerInput.value, prediction: [] });</p>
+<p class="p1"><span class="Apple-converted-space">  </span>playerInput.value = "";</p>
+<p class="p1"><span class="Apple-converted-space">  </span>playerList.innerHTML = players.map(p=&gt;"<span class="s1">・</span>"+p.name).join("&lt;br&gt;");</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">function startPrediction() {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if (players.length === 0) return alert("<span class="s1">参加者を追加してください</span>");</p>
+<p class="p2"><br></p>
+<p class="p3"><span class="s2"><span class="Apple-converted-space">  </span>// </span>伝説の料理人を追加</p>
+<p class="p1"><span class="Apple-converted-space">  </span>players.push({</p>
+<p class="p1"><span class="Apple-converted-space">    </span>name: "<span class="s1">伝説の料理人</span>",</p>
+<p class="p1"><span class="Apple-converted-space">    </span>prediction: randomPrediction()</p>
+<p class="p1"><span class="Apple-converted-space">  </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>currentPlayer = 0;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>showPrediction();</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1">function showPrediction() {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const p = players[currentPlayer];</p>
+<p class="p2"><br></p>
+<p class="p3"><span class="s2"><span class="Apple-converted-space">  </span>// </span>料理人は自動予想なのでスキップ</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if (p.name === "<span class="s1">伝説の料理人</span>") {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>currentPlayer++;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>if (currentPlayer &lt; players.length) {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>showPrediction();</p>
+<p class="p1"><span class="Apple-converted-space">    </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>show("screen-result");</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>return;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>playerTitle.innerText = `<span class="s1">予想入力：</span>${p.name}`;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>p1.value = p2.value = p3.value = "";</p>
+<p class="p1"><span class="Apple-converted-space">  </span>show("screen-prediction");</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1">function savePrediction() {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>players[currentPlayer].prediction = [</p>
+<p class="p1"><span class="Apple-converted-space">    </span>Number(p1.value),</p>
+<p class="p1"><span class="Apple-converted-space">    </span>Number(p2.value),</p>
+<p class="p1"><span class="Apple-converted-space">    </span>Number(p3.value)</p>
+<p class="p1"><span class="Apple-converted-space">  </span>];</p>
+<p class="p1"><span class="Apple-converted-space">  </span>currentPlayer++;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if (currentPlayer &lt; players.length) {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>showPrediction();</p>
+<p class="p1"><span class="Apple-converted-space">  </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>show("screen-result");</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">function judge() {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const result = [</p>
+<p class="p1"><span class="Apple-converted-space">    </span>Number(r1.value),</p>
+<p class="p1"><span class="Apple-converted-space">    </span>Number(r2.value),</p>
+<p class="p1"><span class="Apple-converted-space">    </span>Number(r3.value)</p>
+<p class="p1"><span class="Apple-converted-space">    </span>ticketShop.innerText = shopInput.value || "<span class="s1">（店名未記入）</span>";</p>
+<p class="p1"><span class="Apple-converted-space">    </span>ticketDate.innerText = today();</p>
+<p class="p1"><span class="Apple-converted-space">  </span>];</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>let resultText = "<span class="s1">【到着結果（三連単）】</span>&lt;br&gt;";</p>
+<p class="p1"><span class="Apple-converted-space">  </span>result.forEach((n,i)=&gt;{</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const m = menus[n-1];</p>
+<p class="p1"><span class="Apple-converted-space">    </span>resultText += `${i+1}<span class="s1">着：</span>${n} ${m.name}<span class="s1">（</span>${m.odds}<span class="s1">倍）</span>&lt;br&gt;`;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>let winnersText = "<span class="s1">【格付け】</span>&lt;br&gt;";</p>
+<p class="p1"><span class="Apple-converted-space">  </span>players.forEach(p=&gt;{</p>
+<p class="p1"><span class="Apple-converted-space">    </span>let score = 0;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>p.prediction.forEach((num, idx)=&gt;{</p>
+<p class="p1"><span class="Apple-converted-space">      </span>if (num === result[idx]) score++;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>let mark = "<span class="s4">✖︎</span>";</p>
+<p class="p1"><span class="Apple-converted-space">    </span>if (score === 3) mark = "<span class="s1">◎</span>";</p>
+<p class="p1"><span class="Apple-converted-space">    </span>else if (score === 2) mark = "<span class="s1">◯</span>";</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>winnersText += `${mark} ${p.name}&lt;br&gt;`;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>ticketResult.innerHTML = resultText;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>ticketWinners.innerHTML = winnersText;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>show("screen-ticket");</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1">let resultText = "<span class="s1">【到着結果（三連単）】</span>&lt;br&gt;";</p>
+<p class="p1">result.forEach((n,i)=&gt;{</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const m = menus[n-1];</p>
+<p class="p1"><span class="Apple-converted-space">  </span>resultText += `${i+1}<span class="s1">着：</span>${n} ${m.name}<span class="s1">（</span>${m.odds}<span class="s1">倍）</span>&lt;br&gt;`;</p>
+<p class="p1">});</p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>let winnersText = "<span class="s1">【的中者】</span>&lt;br&gt;";</p>
+<p class="p1"><span class="Apple-converted-space">  </span>players.forEach(p=&gt;{</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const hit = p.prediction.join() === result.join();</p>
+<p class="p1"><span class="Apple-converted-space">    </span>winnersText += `${hit ? "<span class="s1">◎</span>" : "×"} ${p.name}&lt;br&gt;`;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>ticketResult.innerHTML = resultText;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>ticketWinners.innerHTML = winnersText;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>show("screen-ticket");</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1">function resetApp() {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>let menus = [];</p>
+<p class="p1"><span class="Apple-converted-space">  </span>players = [];</p>
+<p class="p1"><span class="Apple-converted-space">  </span>document.querySelectorAll("input").forEach(i=&gt;i.value="");</p>
+<p class="p1"><span class="Apple-converted-space">  </span>menuList.innerHTML = playerList.innerHTML = judgeResult.innerHTML = "";</p>
+<p class="p1"><span class="Apple-converted-space">  </span>show("screen-menu");</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">function show(id) {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>document.querySelectorAll("div[id^='screen']").forEach(d=&gt;d.classList.add("hidden"));</p>
+<p class="p1"><span class="Apple-converted-space">  </span>document.getElementById(id).classList.remove("hidden");</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">function randomPrediction() {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const nums = menus.map((_, i) =&gt; i + 1);</p>
+<p class="p1"><span class="Apple-converted-space">  </span>nums.sort(() =&gt; Math.random() - 0.5);</p>
+<p class="p1"><span class="Apple-converted-space">  </span>return nums.slice(0, 3);</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">{</p>
+<p class="p1"><span class="Apple-converted-space">  </span>shop: "<span class="s3">○○</span><span class="s1">飯店</span>",</p>
+<p class="p1"><span class="Apple-converted-space">  </span>date: "2026/1/12",</p>
+<p class="p1"><span class="Apple-converted-space">  </span>resultText: "...<span class="s1">結果</span>HTML...",</p>
+<p class="p1"><span class="Apple-converted-space">  </span>winnersText: "...<span class="s1">格付け</span>HTML..."</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">function saveHistory() {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const history = JSON.parse(localStorage.getItem("chukaHistory") || "[]");</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>history.unshift({</p>
+<p class="p1"><span class="Apple-converted-space">    </span>shop: ticketShop.innerText,</p>
+<p class="p1"><span class="Apple-converted-space">    </span>date: ticketDate.innerText,</p>
+<p class="p1"><span class="Apple-converted-space">    </span>result: ticketResult.innerHTML,</p>
+<p class="p1"><span class="Apple-converted-space">    </span>winners: ticketWinners.innerHTML</p>
+<p class="p1"><span class="Apple-converted-space">  </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>localStorage.setItem("chukaHistory", JSON.stringify(history));</p>
+<p class="p1"><span class="Apple-converted-space">  </span>alert("<span class="s1">履歴に保存しました</span>");</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">function showHistory() {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const history = JSON.parse(localStorage.getItem("chukaHistory") || "[]");</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>if (history.length === 0) {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>historyList.innerHTML = "<span class="s1">履歴がありません</span>";</p>
+<p class="p1"><span class="Apple-converted-space">  </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>historyList.innerHTML = history.map((h, i) =&gt; `</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div onclick="openHistory(${i})" style="margin-bottom:10px;cursor:pointer"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span><span class="s5">📍</span> ${h.shop}&lt;br&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span><span class="s5">📅</span> ${h.date}</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>`).join("");</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>show("screen-history");</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">function openHistory(index) {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const history = JSON.parse(localStorage.getItem("chukaHistory") || "[]");</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const h = history[index];</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>ticketShop.innerText = h.shop;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>ticketDate.innerText = h.date;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>ticketResult.innerHTML = h.result;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>ticketWinners.innerHTML = h.winners;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>show("screen-ticket");</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">function showStats() {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const history = JSON.parse(localStorage.getItem("chukaHistory") || "[]");</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const stats = {};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>history.forEach(h =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const shop = h.shop;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>if (!stats[shop]) {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>stats[shop] = { total: 0, win: 0, place: 0, lose: 0 };</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>stats[shop].total++;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// winners HTML<span class="s1">から◎◯</span><span class="s4">✖︎</span><span class="s1">を数える</span></p>
+<p class="p1"><span class="Apple-converted-space">    </span>if (h.winners.includes("<span class="s1">◎</span> <span class="s1">伝説の料理人</span>")) stats[shop].win++;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>else if (h.winners.includes("<span class="s1">◯</span> <span class="s1">伝説の料理人</span>")) stats[shop].place++;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>else stats[shop].lose++;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>if (Object.keys(stats).length === 0) {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>statsList.innerHTML = "<span class="s1">戦績がありません</span>";</p>
+<p class="p1"><span class="Apple-converted-space">  </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>statsList.innerHTML = Object.entries(stats).map(([shop, s]) =&gt; `</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div style="margin-bottom:12px"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span><span class="s5">🏮</span> &lt;strong&gt;${shop}&lt;/strong&gt;&lt;br&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span><span class="s1">開催：</span>${s.total}<span class="s1">回</span>&lt;br&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span><span class="s1">◎</span> ${s.win} <span class="s1">／</span> <span class="s1">◯</span> ${s.place} <span class="s1">／</span> <span class="s4">✖︎</span> ${s.lose}</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>`).join("");</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>show("screen-stats");</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1">&lt;/script&gt;</p>
+<p class="p2"><br></p>
+<p class="p1">&lt;/body&gt;</p>
+<p class="p1">&lt;/html&gt;</p>
+</body>
+</html>
