@@ -43,6 +43,20 @@ th { background:#eee; }
 .waku-3 { background:#f44336; color:#fff; } .waku-4 { background:#2196f3; color:#fff; }
 .waku-5 { background:#ffeb3b; color:#000; } .waku-6 { background:#4caf50; color:#fff; }
 .waku-7 { background:#ff9800; color:#fff; } .waku-8 { background:#ffc0cb; color:#000; }
+/* 紙吹雪アニメーション */
+@keyframes confetti-fall {
+  0% { transform: translateY(0) rotate(0deg); opacity:1; }
+  100% { transform: translateY(-400px) rotate(360deg); opacity:0; }
+}
+.confetti {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background-color: #f44336;
+  border-radius: 50%;
+  animation: confetti-fall 1.5s ease-out forwards;
+  z-index: 10000;
+}
 </style>
 </head>
 <body>
@@ -221,13 +235,62 @@ $('resultInputs').innerHTML=html; $('resultButtons').innerHTML=menus.map((m,i)=>
 function selectMenuForResult(idx){ tempResult[activeSlot]=idx; const next=tempResult.indexOf(null); if(next!==-1) activeSlot=next; renderResultUI();}
 
 // --- 結果発表 ---
-function showResult(){ if(tempResult.includes(null)){alert("すべての結果を入力してください"); return;}
-const shop=$('shopName').value||'王将'; const date=new Date(); let totalOdds=1.0;
-const resHtml=tempResult.map((idx,i)=>{ totalOdds*=parseFloat(menus[idx].odds); return `${i+1}着: ${menus[idx].name}`;}).join('<br>');
-$('finalTitle').innerText=`${shop} グランプリ`; $('finalResult').innerHTML=resHtml; $('finalOdds').innerText=`3連単: ${totalOdds.toFixed(1)}倍`;
-const winners=players.filter(p=>JSON.stringify(p.prediction)===JSON.stringify(tempResult));
-$('finalWinners').innerHTML=winners.length>0?`🎉 的中！<br>${winners.map(w=>w.name).join(', ')}`:'的中者なし...';
+function showResult(){
+  if(tempResult.includes(null)){alert("すべての結果を入力してください"); return;}
+  
+  const shop=$('shopName').value||'王将';
+  const date=new Date();
+  const raceNumber = Math.floor(Math.random()*3)+9; // 9〜11
+  let totalOdds=1.0;
 
+  // 結果HTML
+  const resHtml=tempResult.map((idx,i)=>{
+    totalOdds*=parseFloat(menus[idx].odds);
+    return `${i+1}着: ${menus[idx].name}`;
+  }).join('<br>');
+
+  // 的中者
+  const winners=players.filter(p=>JSON.stringify(p.prediction)===JSON.stringify(tempResult));
+  const hitHtml = winners.length>0?`🎉 的中！<br>${winners.map(w=>w.name).join(', ')}`:'的中者なし...';
+
+  // 全参加者の予想表示
+  const allPredHtml = players.map(p=>{
+    const predText = p.prediction.map(i=>menus[i].name).join(' → ');
+    return `${p.name}: ${predText}`;
+  }).join('<br>');
+
+  $('finalTitle').innerHTML=`第${raceNumber}R ${shop} グランプリ`;
+  $('finalResult').innerHTML = `${resHtml}<br><small style="color:#666;">結果入力日時: ${date.toLocaleString()}</small>`;
+  $('finalOdds').innerText = `3連単: ${totalOdds.toFixed(1)}倍`;
+  $('finalWinners').innerHTML = `${hitHtml}<hr><div style="font-size:14px;">参加者予想:<br>${allPredHtml}</div>`;
+
+  // 履歴保存
+  const record={
+    date:date.toLocaleDateString(),
+    time:date.toLocaleTimeString(),
+    shop:shop,
+    raceName:`第${raceNumber}R ${shop} グランプリ`,
+    result:tempResult.map((idx,i)=>({rank:i+1,menu:menus[idx].name,odds:menus[idx].odds}))
+  };
+  history.unshift(record); if(history.length>10) history.pop();
+
+  show('screen-ticket');
+
+  // 的中時のみ紙吹雪演出
+  if(winners.length>0){
+    for(let i=0;i<30;i++){
+      const confetti = document.createElement('div');
+      confetti.className='confetti';
+      confetti.style.backgroundColor = `hsl(${Math.random()*360},70%,60%)`;
+      confetti.style.left = `${Math.random()*80 + 10}%`;
+      confetti.style.top = `100%`;
+      confetti.style.animationDelay = `${Math.random()*0.5}s`;
+      confetti.style.transform = `rotate(${Math.random()*360}deg)`;
+      document.body.appendChild(confetti);
+      setTimeout(()=>{ confetti.remove(); }, 1500);
+    }
+  }
+}
 // --- 履歴保存 ---
 const record={date:date.toLocaleDateString(),time:date.toLocaleTimeString(),shop:shop,raceName:`${shop} グランプリ`,result:tempResult.map((idx,i)=>({rank:i+1,menu:menus[idx].name,odds:menus[idx].odds}))};
 history.unshift(record); if(history.length>10) history.pop();
