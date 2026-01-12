@@ -7,7 +7,6 @@
 <style>
 body { font-family: system-ui, -apple-system; background: #f5f5f5; padding: 10px; overflow-x: hidden; margin: 0; }
 
-/* !importantを外し、JavaScriptでの制御を優先させる */
 .hidden { display: none; }
 
 .box { background: #fff; padding: 15px; margin-bottom: 12px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); position: relative; }
@@ -23,7 +22,7 @@ button:active:not(:disabled) { transform: scale(0.96); }
 .btn-back { background: linear-gradient(#616161, #424242); }
 .btn-danger { background: linear-gradient(#EF6C00, #E65100); }
 
-/* ヘルプボタンを目立たせる */
+/* ヘルプボタン */
 .btn-help { 
   position: absolute; top: 15px; right: 15px; 
   width: 35px; height: 35px; padding: 0; 
@@ -38,7 +37,7 @@ button:active:not(:disabled) { transform: scale(0.96); }
 .menu-item { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ddd; padding: 8px 0; }
 .btn-del { width: auto !important; padding: 4px 10px !important; font-size: 12px !important; background: #f44336; margin: 0; }
 
-/* モーダル表示の改善 */
+/* モーダル */
 .modal-overlay { 
   position: fixed; top: 0; left: 0; 
   width: 100%; height: 100%; 
@@ -93,9 +92,9 @@ button:active:not(:disabled) { transform: scale(0.96); }
       <li>「出走表を確認」で各メニューのオッズを確認。</li>
       <li>参加者を追加し、料理が届く順番（1〜3着）を予想。</li>
       <li>料理が届いた順に結果を入力。</li>
-      <li>見事的中された方には豪華賞品が！？</li>
+      <li>的中された方には豪華賞品が！？</li>
     </ol>
-    <button class="btn-main" onclick="toggleHelp()">閉じる</button>
+    <button type="button" class="btn-main" onclick="toggleHelp()">閉じる</button>
   </div>
 </div>
 
@@ -106,34 +105,34 @@ button:active:not(:disabled) { transform: scale(0.96); }
   <datalist id="shopHistory"></datalist>
   <input id="menuInput" placeholder="メニュー名" list="menuHistory">
   <datalist id="menuHistory"></datalist>
-  <button class="btn-add" onclick="addMenu()">メニュー追加</button>
+  <button type="button" class="btn-add" onclick="addMenu()">メニュー追加</button>
   <div id="menuList">メニューを追加してください</div>
-  <button class="btn-main" onclick="prepareRace()">出走表を確認</button>
-  <button class="btn-back" onclick="showHistory()">履歴を見る</button>
-  <button class="btn-danger" onclick="clearTopCache()">メニューをクリア</button>
+  <button type="button" class="btn-main" onclick="prepareRace()">出走表を確認</button>
+  <button type="button" class="btn-back" onclick="showHistory()">履歴を見る</button>
+  <button type="button" class="btn-danger" onclick="clearTopCache()">メニューをクリア</button>
 </div>
 
 <div id="screen-race-table" class="box hidden">
   <h3>出走表</h3>
   <div id="raceTableContainer"></div>
-  <button class="btn-main" style="margin-top:15px;" onclick="startPlayers()">参加者登録へ</button>
-  <button class="btn-back" onclick="show('screen-menu')">メニュー修正に戻る</button>
+  <button type="button" class="btn-main" style="margin-top:15px;" onclick="startPlayers()">参加者登録へ</button>
+  <button type="button" class="btn-back" onclick="show('screen-menu')">メニュー修正に戻る</button>
 </div>
 
 <div id="screen-history" class="box hidden">
   <h3>過去の履歴</h3>
   <div id="historyList">履歴はまだありません</div>
-  <button class="btn-back" onclick="show('screen-menu')">戻る</button>
+  <button type="button" class="btn-back" onclick="show('screen-menu')">戻る</button>
 </div>
 
 <div id="screen-player" class="box hidden">
   <h3>参加者登録</h3>
   <input id="playerInput" placeholder="参加者名" list="playerHistory">
   <datalist id="playerHistory"></datalist>
-  <button class="btn-add" onclick="addPlayer()">参加者を追加</button>
+  <button type="button" class="btn-add" onclick="addPlayer()">参加者を追加</button>
   <div id="playerList">参加者がいません</div>
-  <button class="btn-start" onclick="startPrediction()">予想開始</button>
-  <button class="btn-back" onclick="show('screen-race-table')">戻る</button>
+  <button type="button" class="btn-start" onclick="startPrediction()">予想開始</button>
+  <button type="button" class="btn-back" onclick="show('screen-race-table')">戻る</button>
 </div>
 
 <div id="screen-prediction" class="box hidden">
@@ -144,7 +143,7 @@ button:active:not(:disabled) { transform: scale(0.96); }
     <div id="pslot2" class="result-slot" onclick="clearPredictSlot(2)">3着：<span id="slot3">未選択</span></div>
   </div>
   <div id="menuChoices"></div>
-  <button class="btn-main" onclick="savePrediction()">確定</button>
+  <button type="button" class="btn-main" onclick="savePrediction()">確定</button>
 </div>
 
 <div id="screen-result" class="box hidden">
@@ -155,7 +154,7 @@ button:active:not(:disabled) { transform: scale(0.96); }
     <div id="rslot_ui2" class="result-slot" onclick="clearResultSlot(2)">3着：<span id="rslot3">未選択</span></div>
   </div>
   <div id="resultChoices"></div>
-  <button class="btn-main" onclick="judge()">結果発表</button>
+  <button type="button" class="btn-main" onclick="judge()">結果発表</button>
 </div>
 
 <div id="screen-ticket" class="box hidden">
@@ -171,7 +170,7 @@ button:active:not(:disabled) { transform: scale(0.96); }
     </div>
   </div>
   <div id="ticketPredictions" style="font-size:14px; color:#555; margin-top:10px; padding:10px;"></div>
-  <button class="btn-back" style="margin-top:15px" onclick="resetApp()">最初から</button>
+  <button type="button" class="btn-back" style="margin-top:15px" onclick="resetApp()">最初から</button>
 </div>
 
 <footer style="text-align: center; padding: 20px; font-size: 12px; color: #888;">
@@ -182,7 +181,6 @@ button:active:not(:disabled) { transform: scale(0.96); }
 let menus=[], players=[], currentPlayer=0, tempPrediction=[null,null,null], tempResult=[null,null,null], activePredictSlot=0, activeResultSlot=0;
 const $ = (id) => document.getElementById(id);
 
-// 画面遷移
 function show(id){
   const allScreens = ["screen-menu", "screen-history", "screen-player", "screen-prediction", "screen-result", "screen-ticket", "screen-race-table"];
   allScreens.forEach(s => { 
@@ -194,14 +192,9 @@ function show(id){
   window.scrollTo(0, 0);
 }
 
-// ヘルプ表示切り替え
 function toggleHelp() {
   const modal = $("modal-help");
-  if(modal.classList.contains("hidden")) {
-    modal.classList.remove("hidden");
-  } else {
-    modal.classList.add("hidden");
-  }
+  modal.classList.toggle("hidden");
 }
 
 function loadAllHistories(){
@@ -215,7 +208,7 @@ function addMenu(){
   const val = $("menuInput").value.trim();
   if(!val) return;
   if (menus.some(m => m.name === val)) return alert("追加済みです");
-  menus.push({name: val}); 
+  menus.push({name: val, odds: 0}); 
   renderMenuList();
   saveToHistory("menuNameHistory", val);
   $("menuInput").value = "";
@@ -223,7 +216,7 @@ function addMenu(){
 
 function renderMenuList() {
   $("menuList").innerHTML = menus.length === 0 ? "メニューを追加してください" : 
-    menus.map((m,i)=>`<div class="menu-item"><span>・ ${m.name}</span><button class="btn-del" onclick="removeMenu(${i})">削除</button></div>`).join("");
+    menus.map((m,i)=>`<div class="menu-item"><span>・ ${m.name}</span><button type="button" class="btn-del" onclick="removeMenu(${i})">削除</button></div>`).join("");
 }
 
 function removeMenu(i) { menus.splice(i, 1); renderMenuList(); }
@@ -265,9 +258,13 @@ function addPlayer(){
   const val = $("playerInput").value.trim();
   if(!val) return;
   players.push({name: val, prediction: []});
-  $("playerList").innerHTML = players.map(p => `・ ${p.name}`).join("<br>");
+  renderPlayerList();
   saveToHistory("playerHistory", val);
   $("playerInput").value = "";
+}
+
+function renderPlayerList(){
+  $("playerList").innerHTML = players.length === 0 ? "参加者がいません" : players.map(p => `・ ${p.name}`).join("<br>");
 }
 
 function clearPredictSlot(i){ tempPrediction[i] = null; activePredictSlot = i; updatePredictUI(); }
@@ -277,7 +274,7 @@ function updatePredictUI(){
     $(`slot${i}`).innerText = mIdx ? `${menus[mIdx-1].name} (${menus[mIdx-1].odds}倍)` : "未選択";
   });
   [0,1,2].forEach(i => $(`pslot${i}`).classList.toggle("active", i === activePredictSlot));
-  $("menuChoices").innerHTML = menus.map((m,i) => `<button class="btn-add" onclick="selectMenu(${i+1})" ${tempPrediction.includes(i+1) ? 'disabled' : ''}>${m.name} (${m.odds}倍)</button>`).join("");
+  $("menuChoices").innerHTML = menus.map((m,i) => `<button type="button" class="btn-add" onclick="selectMenu(${i+1})" ${tempPrediction.includes(i+1) ? 'disabled' : ''}>${m.name} (${m.odds}倍)</button>`).join("");
 }
 function selectMenu(n){
   tempPrediction[activePredictSlot] = n;
@@ -288,7 +285,9 @@ function selectMenu(n){
 
 function startPrediction(){
   if(players.length === 0) return alert("参加者を追加してください");
-  players.push({name:"岡星精一(CPU)", prediction:[...Array(menus.length).keys()].map(i=>i+1).sort(()=>Math.random()-0.5).slice(0,3)});
+  if(!players.some(p => p.name.includes("CPU"))) {
+    players.push({name:"岡星精一(CPU)", prediction:[...Array(menus.length).keys()].map(i=>i+1).sort(()=>Math.random()-0.5).slice(0,3)});
+  }
   currentPlayer = 0; nextStepPrediction();
 }
 function nextStepPrediction(){
@@ -313,7 +312,7 @@ function updateResultUI(){
     $(`rslot${i}`).innerText = mIdx ? `${menus[mIdx-1].name} (${menus[mIdx-1].odds}倍)` : "未選択";
   });
   [0,1,2].forEach(i => $(`rslot_ui${i}`).classList.toggle("active", i === activeResultSlot));
-  $("resultChoices").innerHTML = menus.map((m,i) => `<button class="btn-start" onclick="selectResult(${i+1})" ${tempResult.includes(i+1) ? 'disabled' : ''}>${m.name} (${m.odds}倍)</button>`).join("");
+  $("resultChoices").innerHTML = menus.map((m,i) => `<button type="button" class="btn-start" onclick="selectResult(${i+1})" ${tempResult.includes(i+1) ? 'disabled' : ''}>${m.name} (${m.odds}倍)</button>`).join("");
 }
 function selectResult(n){
   tempResult[activeResultSlot] = n;
@@ -335,7 +334,7 @@ function judge(){
   $("res-date").innerText = new Date().toLocaleDateString();
   $("res-resultList").innerHTML = resHtml;
   $("res-totalOdds").innerText = `3連単 ${totalOdds.toFixed(1)}倍`;
-  let winners = players.filter(p => p.prediction.every((v,i) => v === tempResult[i])).map(p=>p.name);
+  let winners = players.filter(p => p.prediction.length === 3 && p.prediction.every((v,i) => v === tempResult[i])).map(p=>p.name);
   $("res-winners").innerHTML = winners.length > 0 ? `🎉 的中：${winners.join(", ")}` : "的中者なし";
   if(winners.length > 0) launchFountainConfetti();
   $("ticketPredictions").innerHTML = "【全員の予想】<br>" + players.map(p => `${p.name}: ${p.prediction.map(idx=>menus[idx-1].name).join("→")}`).join("<br>");
@@ -363,7 +362,12 @@ function showHistory(){
   show("screen-history");
 }
 function clearTopCache(){ if(confirm("クリア？")){ menus=[]; renderMenuList(); } }
-function resetApp(){ menus=[]; players=[]; currentPlayer=0; renderMenuList(); show("screen-menu"); }
+function resetApp(){ 
+  menus=[]; players=[]; currentPlayer=0; 
+  tempPrediction=[null,null,null]; tempResult=[null,null,null];
+  renderMenuList(); renderPlayerList(); 
+  show("screen-menu"); 
+}
 </script>
 </body>
 </html>
