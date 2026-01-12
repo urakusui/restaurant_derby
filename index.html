@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>中華到着順ダービー</title>
+<title>王将ダービー</title>
 
 <style>
 body {
@@ -61,7 +61,7 @@ button {
 
 <!-- トップ -->
 <div id="screen-menu" class="box">
-  <h2>中華到着順ダービー</h2>
+  <h2>王将到着順ダービー</h2>
   <input id="shopInput" placeholder="店名">
   <input id="menuInput" placeholder="メニュー名" list="menuHistory">
   <datalist id="menuHistory"></datalist>
@@ -290,6 +290,14 @@ function judge() {
   ticketResult.innerHTML = tempResult.map((n, i) =>
     `${i + 1}着：${menus[n - 1].name}（${menus[n - 1].odds}倍）`
   ).join("<br>");
+  // 合成オッズ計算
+  let combinedOdds = 1;
+  tempResult.forEach(n => {
+    combinedOdds *= parseFloat(menus[n - 1].odds);
+  });
+  combinedOdds = combinedOdds.toFixed(1);
+
+  ticketOdds.innerHTML = `<strong>確定オッズ：</strong>${combinedOdds}倍`;
 
   ticketWinners.innerHTML = players.map(p => {
     const h = p.prediction.filter((v, i) => v === tempResult[i]).length;
