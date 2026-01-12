@@ -99,14 +99,17 @@ button {
     3着：<span id="slot3">未選択</span>
   </div>
 
-  <div id="menuChoices"></div>
+  <div class="box">
+    <strong>メニューを選択</strong>
+    <div id="menuChoices"></div>
+  </div>
 
   <button onclick="savePrediction()">確定</button>
 </div>
 
 <!-- 到着結果 -->
 <div id="screen-result" class="box hidden">
-  <h3>到着結果（タップで入れ替え可）</h3>
+  <h3>到着結果（タップで入れ替え）</h3>
 
   <div class="box">
     <div class="result-slot active" id="rline1" onclick="setActiveSlot(0)">1着：<span id="rslot1">未選択</span></div>
@@ -114,7 +117,10 @@ button {
     <div class="result-slot" id="rline3" onclick="setActiveSlot(2)">3着：<span id="rslot3">未選択</span></div>
   </div>
 
-  <div id="resultChoices"></div>
+  <div class="box">
+    <strong>到着した料理を選択</strong>
+    <div id="resultChoices"></div>
+  </div>
 
   <button onclick="judge()">結果表示</button>
 </div>
@@ -132,24 +138,7 @@ button {
     <div id="ticketWinners"></div>
     <div style="text-align:center">※ ごちそうさまでした</div>
   </div>
-  <button onclick="saveHistory()">履歴に保存</button>
-  <button onclick="showHistory()">履歴を見る</button>
   <button onclick="resetApp()">最初から</button>
-</div>
-
-<!-- 履歴 -->
-<div id="screen-history" class="box hidden">
-  <h3>履歴</h3>
-  <div id="historyList"></div>
-  <button onclick="showStats()">店ごとの戦績</button>
-  <button onclick="show('screen-menu')">戻る</button>
-</div>
-
-<!-- 戦績 -->
-<div id="screen-stats" class="box hidden">
-  <h3>店ごとの戦績</h3>
-  <div id="statsList"></div>
-  <button onclick="show('screen-history')">戻る</button>
 </div>
 
 <script>
@@ -161,7 +150,6 @@ let tempPrediction = [];
 let tempResult = [];
 let activeResultSlot = 0;
 
-/* 共通 */
 function show(id) {
   document.querySelectorAll("[id^='screen']").forEach(d => d.classList.add("hidden"));
   document.getElementById(id).classList.remove("hidden");
@@ -172,13 +160,9 @@ function today() {
   return `${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}`;
 }
 
-/* メニュー */
 function addMenu() {
   if (!menuInput.value) return;
-  menus.push({
-    name: menuInput.value,
-    odds: (Math.random()*8+1).toFixed(1)
-  });
+  menus.push({ name: menuInput.value, odds: (Math.random()*8+1).toFixed(1) });
   menuInput.value = "";
   menuList.innerHTML = menus.map((m,i)=>`${i+1}. ${m.name}（${m.odds}倍）`).join("<br>");
 }
@@ -188,7 +172,6 @@ function startPlayers() {
   show("screen-player");
 }
 
-/* 参加者 */
 function addPlayer() {
   if (!playerInput.value) return;
   players.push({ name: playerInput.value, prediction: [] });
@@ -196,7 +179,6 @@ function addPlayer() {
   playerList.innerHTML = players.map(p=>p.name).join("<br>");
 }
 
-/* 予想 */
 function randomPrediction() {
   return [...menus.keys()].map(i=>i+1).sort(()=>Math.random()-0.5).slice(0,3);
 }
@@ -217,16 +199,11 @@ function showPrediction() {
   tempPrediction = [];
   slot1.innerText = slot2.innerText = slot3.innerText = "未選択";
 
-  menuChoices.innerHTML = menus.map((m,i)=>{
-    let label = "";
-    if (m.odds <= 2.0) label = '<span class="odds-label odds-favorite">本命</span>';
-    else if (m.odds >= 6.0) label = '<span class="odds-label odds-longshot">大穴</span>';
-
-    return `<button id="choice${i+1}" class="choice-btn"
-      onclick="selectMenu(${i+1})">
-      ${i+1}. ${m.name}（${m.odds}倍）${label}
-    </button>`;
-  }).join("");
+  menuChoices.innerHTML = menus.map((m,i)=>`
+    <button class="choice-btn" onclick="selectMenu(${i+1})">
+      ${i+1}. ${m.name}（${m.odds}倍）
+    </button>
+  `).join("");
 
   playerTitle.innerText = `予想：${p.name}`;
   show("screen-prediction");
@@ -234,11 +211,7 @@ function showPrediction() {
 
 function selectMenu(num) {
   if (tempPrediction.includes(num)) return;
-  if (navigator.vibrate) navigator.vibrate(50);
-
   tempPrediction.push(num);
-  document.getElementById(`choice${num}`).classList.add("used");
-
   if (tempPrediction.length === 1) slot1.innerText = menus[num-1].name;
   if (tempPrediction.length === 2) slot2.innerText = menus[num-1].name;
   if (tempPrediction.length === 3) slot3.innerText = menus[num-1].name;
@@ -251,108 +224,48 @@ function savePrediction() {
   currentPlayer < players.length ? showPrediction() : showResultSelect();
 }
 
-/* 到着結果 */
 function showResultSelect() {
   tempResult = [];
   activeResultSlot = 0;
 
   rslot1.innerText = rslot2.innerText = rslot3.innerText = "未選択";
-  setActiveSlot(0);
 
-  resultChoices.innerHTML = menus.map((m,i)=>{
-    let label = "";
-    if (m.odds <= 2.0) label = '<span class="odds-label odds-favorite">本命</span>';
-    else if (m.odds >= 6.0) label = '<span class="odds-label odds-longshot">大穴</span>';
-
-    return `<button id="rchoice${i+1}" class="choice-btn"
-      onclick="selectResult(${i+1})">
-      ${i+1}. ${m.name}（${m.odds}倍）${label}
-    </button>`;
-  }).join("");
+  resultChoices.innerHTML = menus.map((m,i)=>`
+    <button class="choice-btn" onclick="selectResult(${i+1})">
+      ${i+1}. ${m.name}（${m.odds}倍）
+    </button>
+  `).join("");
 
   show("screen-result");
 }
 
-function setActiveSlot(index) {
-  activeResultSlot = index;
-  ["rline1","rline2","rline3"].forEach((id,i)=>{
-    document.getElementById(id).classList.toggle("active", i === index);
-  });
+function setActiveSlot(i) {
+  activeResultSlot = i;
 }
 
 function selectResult(num) {
-  if (navigator.vibrate) navigator.vibrate(50);
-
-  const existing = tempResult.indexOf(num);
-  if (existing !== -1) tempResult[existing] = undefined;
-
   tempResult[activeResultSlot] = num;
-
-  ["rslot1","rslot2","rslot3"].forEach((id,i)=>{
-    document.getElementById(id).innerText =
-      tempResult[i] ? menus[tempResult[i]-1].name : "未選択";
-  });
-
-  menus.forEach((_,i)=>{
-    const btn = document.getElementById(`rchoice${i+1}`);
-    btn.classList.toggle("used", tempResult.includes(i+1));
-  });
+  rslot1.innerText = tempResult[0] ? menus[tempResult[0]-1].name : "未選択";
+  rslot2.innerText = tempResult[1] ? menus[tempResult[1]-1].name : "未選択";
+  rslot3.innerText = tempResult[2] ? menus[tempResult[2]-1].name : "未選択";
 }
 
-/* 判定 */
 function judge() {
   if (tempResult.filter(Boolean).length !== 3) {
     alert("到着順をすべて選択してください");
     return;
   }
 
-  ticketShop.innerText = shopInput.value || "（店名未記入）";
+  ticketShop.innerText = shopInput.value || "";
   ticketDate.innerText = today();
 
-  ticketResult.innerHTML = tempResult.map((n,i)=>
-    `${i+1}着：${menus[n-1].name}（${menus[n-1].odds}倍）`
-  ).join("<br>");
-
+  ticketResult.innerHTML = tempResult.map((n,i)=>`${i+1}着：${menus[n-1].name}`).join("<br>");
   ticketWinners.innerHTML = players.map(p=>{
     const hit = p.prediction.filter((v,i)=>v===tempResult[i]).length;
     return `${hit===3?"◎":hit===2?"◯":"✖︎"} ${p.name}`;
   }).join("<br>");
 
   show("screen-ticket");
-}
-
-/* 履歴・戦績 */
-function saveHistory() {
-  const h = JSON.parse(localStorage.getItem("chukaHistory")||"[]");
-  h.unshift({
-    shop: ticketShop.innerText,
-    date: ticketDate.innerText,
-    winners: ticketWinners.innerHTML
-  });
-  localStorage.setItem("chukaHistory", JSON.stringify(h));
-  alert("保存しました");
-}
-
-function showHistory() {
-  const h = JSON.parse(localStorage.getItem("chukaHistory")||"[]");
-  historyList.innerHTML = h.map(v=>`${v.shop}<br>${v.date}`).join("<hr>");
-  show("screen-history");
-}
-
-function showStats() {
-  const h = JSON.parse(localStorage.getItem("chukaHistory")||"[]");
-  const s = {};
-  h.forEach(v=>{
-    s[v.shop] ??= {t:0,w:0,p:0,l:0};
-    s[v.shop].t++;
-    if (v.winners.includes("◎ 伝説の料理人")) s[v.shop].w++;
-    else if (v.winners.includes("◯ 伝説の料理人")) s[v.shop].p++;
-    else s[v.shop].l++;
-  });
-  statsList.innerHTML = Object.entries(s).map(([k,v])=>
-    `${k}<br>開催:${v.t} ◎${v.w} ◯${v.p} ✖︎${v.l}<br><br>`
-  ).join("");
-  show("screen-stats");
 }
 
 function resetApp() {
