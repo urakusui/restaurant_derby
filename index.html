@@ -221,13 +221,28 @@ function clearPlayers(){
 
 /* 予想 */
 function startPrediction(){ players.push({name:"伝説の料理人",prediction:[...menus.keys()].map(i=>i+1).sort(()=>Math.random()-0.5).slice(0,3)}); currentPlayer=0; showPrediction(); }
-function showPrediction(){
-  const p=players[currentPlayer];
-  if(p.name==="伝説の料理人"){ currentPlayer++; return currentPlayer<players.length?showPrediction():showResultSelect(); }
-  tempPrediction=[]; activePredictSlot=0; updatePredictSlots();
-  menuChoices.innerHTML = menus.map((m,i)=>`<button onclick="selectMenu(${i+1})">${i+1}. ${m.name}</button>`).join("");
-  playerTitle.innerText=`予想：${p.name}（タップで入れ替え）`;
+function showPrediction() {
+  const p = players[currentPlayer];
+  if (p.name === "伝説の料理人") {
+    currentPlayer++;
+    return currentPlayer < players.length ? showPrediction() : showResultSelect();
+  }
+
+  tempPrediction = [];
+  activePredictSlot = 0;
+  updatePredictSlots();
+
+  // メニュー選択ボタンにオッズを追加
+  menuChoices.innerHTML = menus.map((m, i) =>
+    `<button onclick="selectMenu(${i + 1})">
+       ${i + 1}. ${m.name}（${m.odds}倍）
+     </button>`
+  ).join("");
+
+  playerTitle.innerText = `予想：${p.name}（タップで入れ替え）`;
   show("screen-prediction");
+}
+
 }
 function setActivePredictSlot(i){ activePredictSlot=i; updatePredictSlots(); }
 function updatePredictSlots(){ [slot1,slot2,slot3].forEach((s,i)=>{ s.innerText=tempPrediction[i]?menus[tempPrediction[i]-1].name:"未選択"; }); document.querySelectorAll("#screen-prediction .result-slot").forEach((e,idx)=>e.classList.toggle("active",idx===activePredictSlot)); }
