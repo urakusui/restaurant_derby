@@ -45,7 +45,6 @@ button:active:not(:disabled) { transform: scale(0.96); }
 
 .odds-tag { color: #888; margin-left: 6px; font-size: 0.9em; }
 
-/* 噴水のような紙吹雪アニメーション */
 .confetti { position: fixed; width: 10px; height: 10px; bottom: -20px; z-index: 9999; pointer-events: none; animation: fountain var(--duration) ease-out forwards; }
 @keyframes fountain {
   0% { transform: translateY(0) translateX(0) rotate(0deg); opacity: 1; }
@@ -66,7 +65,7 @@ button:active:not(:disabled) { transform: scale(0.96); }
   <div id="menuList">メニューを追加してください</div>
   <button class="btn-main" onclick="startPlayers()">次へ</button>
   <button class="btn-back" onclick="showHistory()">履歴を見る</button>
-  <button class="btn-danger" onclick="clearTopCache()">メニューをクリア</button>
+  <button class="btn-danger" onclick="clearTopCache()">店名・メニューをクリア</button>
 </div>
 
 <div id="screen-history" class="box hidden">
@@ -165,6 +164,10 @@ function showHistory(){
 function addMenu(){
   const val = $("menuInput").value.trim();
   if(!val) return;
+  if (menus.some(m => m.name === val)) {
+    alert("そのメニューは既に追加されています。");
+    return;
+  }
   const menu = {name: val, odds: (Math.random() * 8 + 1).toFixed(1)};
   menus.push(menu);
   $("menuList").innerHTML = menus.map((m,i)=>`・ ${m.name} <span class="odds-tag">(${m.odds}倍)</span>`).join("<br>");
@@ -220,7 +223,7 @@ function nextStepPrediction(){
 
 function startPrediction(){
   if(players.length === 0) return alert("参加者を追加してください");
-  players.push({name:"岡星精一(CPU)", prediction:[...Array(menus.length).keys()].map(i=>i+1).sort(()=>Math.random()-0.5).slice(0,3)});
+  players.push({name:"CPU(料理人)", prediction:[...Array(menus.length).keys()].map(i=>i+1).sort(()=>Math.random()-0.5).slice(0,3)});
   currentPlayer = 0; nextStepPrediction();
 }
 
@@ -259,7 +262,7 @@ function selectResult(n){
 function judge(){
   if(tempResult.filter(n=>n).length < 3) return alert("3位まで選んでください");
   const shop = $("shopInput").value || "王将";
-  const suffixes = ["記念", "S", "杯", "賞", "カップ"];
+  const suffixes = ["記念", "S", "GP"];
   const randomSuffix = suffixes[Math.floor(Math.random() * suffixes.length)];
   const raceTitle = `第11R ${shop}${randomSuffix}`;
   
@@ -307,8 +310,8 @@ function launchFountainConfetti() {
     c.className = "confetti";
     c.style.left = "50vw";
     c.style.backgroundColor = colors[Math.floor(Math.random()*6)];
-    const xMove = (Math.random() - 0.5) * 600; // 横の広がり
-    const yMove = -(Math.random() * 600 + 400); // 上への高さ
+    const xMove = (Math.random() - 0.5) * 600;
+    const yMove = -(Math.random() * 600 + 400);
     const duration = Math.random() * 2 + 1.5;
     c.style.setProperty('--x', `${xMove}px`);
     c.style.setProperty('--y', `${yMove}px`);
