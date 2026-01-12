@@ -19,7 +19,7 @@ button:active:not(:disabled) { transform: scale(0.96); }
 .btn-back { background: linear-gradient(#616161, #424242); }
 .btn-danger { background: linear-gradient(#EF6C00, #E65100); }
 
-/* 一覧フォントサイズ調整 */
+/* リストフォントサイズ */
 #menuList, #playerList, #historyList { 
   max-height: 250px; 
   overflow-y: auto; 
@@ -47,7 +47,7 @@ button:active:not(:disabled) { transform: scale(0.96); }
 
 .odds-tag { color: #888; margin-left: 6px; font-size: 0.9em; }
 
-/* 紙吹雪 */
+/* 紙吹雪演出 */
 .confetti { position: fixed; width: 10px; height: 10px; bottom: -20px; z-index: 9999; pointer-events: none; animation: fountain var(--duration) ease-out forwards; }
 @keyframes fountain {
   0% { transform: translateY(0) translateX(0) rotate(0deg); opacity: 1; }
@@ -70,6 +70,12 @@ button:active:not(:disabled) { transform: scale(0.96); }
   <button class="btn-danger" onclick="clearTopCache()">店名・メニューをクリア</button>
 </div>
 
+<div id="screen-history" class="box hidden">
+  <h3>過去の履歴</h3>
+  <div id="historyList">履歴データがありません</div>
+  <button class="btn-back" onclick="show('screen-menu')">戻る</button>
+</div>
+
 <div id="screen-player" class="box hidden">
   <h3>参加者登録</h3>
   <input id="playerInput" placeholder="参加者名" list="playerHistory">
@@ -77,12 +83,6 @@ button:active:not(:disabled) { transform: scale(0.96); }
   <button class="btn-add" onclick="addPlayer()">参加者を追加</button>
   <div id="playerList">参加者がいません</div>
   <button class="btn-start" onclick="startPrediction()">予想開始</button>
-  <button class="btn-back" onclick="show('screen-menu')">戻る</button>
-</div>
-
-<div id="screen-history" class="box hidden">
-  <h3>過去の履歴</h3>
-  <div id="historyList">履歴はまだありません</div>
   <button class="btn-back" onclick="show('screen-menu')">戻る</button>
 </div>
 
@@ -121,48 +121,26 @@ button:active:not(:disabled) { transform: scale(0.96); }
     </div>
   </div>
   <div id="ticketPredictions" style="font-size:14px; color:#555; margin-top:10px; padding:10px;"></div>
-  <button class="btn-back" style="margin-top:15px" onclick="resetApp()">トップに戻る</button>
+  <button class="btn-back" style="margin-top:15px" onclick="resetApp()">最初から</button>
 </div>
 
 <script>
 let menus=[], players=[], currentPlayer=0, tempPrediction=[null,null,null], tempResult=[null,null,null], activePredictSlot=0, activeResultSlot=0;
 const $ = (id) => document.getElementById(id);
 
-// 画面遷移を確実にする関数
+// 画面切り替えのロジックを強化
 function show(id){
-  const screens = ["screen-menu", "screen-player", "screen-history", "screen-prediction", "screen-result", "screen-ticket"];
-  screens.forEach(s => {
+  const allScreens = ["screen-menu", "screen-history", "screen-player", "screen-prediction", "screen-result", "screen-ticket"];
+  allScreens.forEach(s => {
     const el = $(s);
     if(el) el.classList.add("hidden");
   });
   const target = $(id);
-  if(target) {
-    target.classList.remove("hidden");
-    window.scrollTo(0, 0); // 遷移時に一番上へ
-  }
+  if(target) target.classList.remove("hidden");
+  window.scrollTo(0, 0);
 }
 
 function today(){ const d=new Date(); return `${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}`; }
-
-// 履歴表示の修正
-function showHistory(){
-  const h = JSON.parse(localStorage.getItem("chukaHistory") || "[]");
-  const listEl = $("historyList");
-  
-  if(h.length === 0){
-    listEl.innerHTML = "<div style='text-align:center; padding:20px;'>保存された履歴はありません</div>";
-  } else {
-    listEl.innerHTML = h.map(item => `
-      <div class="box" style="font-size:14px; border-left:5px solid #B71C1C; padding:10px; margin-bottom:10px;">
-        <b style="color:#B71C1C">${item.title}</b> <span style="font-size:11px; color:#888;">(${item.date})</span><br>
-        <div style="margin-top:5px;">結果：${item.res.join(" → ")}</div>
-        <div style="font-weight:bold;">オッズ：${item.odds}倍</div>
-        <div style="color:${item.winners.length > 0 ? '#2E7D32' : '#777'};">的中：${item.winners.length > 0 ? item.winners.join(", ") : "なし"}</div>
-      </div>
-    `).join("");
-  }
-  show("screen-history");
-}
 
 function loadAllHistories(){
   $("shopHistory").innerHTML = JSON.parse(localStorage.getItem("shopNameHistory")||"[]").map(v=>`<option value="${v}">`).join("");
@@ -170,6 +148,26 @@ function loadAllHistories(){
   $("playerHistory").innerHTML = JSON.parse(localStorage.getItem("playerHistory")||"[]").map(v=>`<option value="${v}">`).join("");
 }
 window.onload = loadAllHistories;
+
+// 履歴を表示する関数
+function showHistory(){
+  const h = JSON.parse(localStorage.getItem("chukaHistory") || "[]");
+  const listEl = $("historyList");
+  
+  if(h.length === 0){
+    listEl.innerHTML = "<div style='text-align:center; padding:20px; color:#888;'>履歴はまだありません</div>";
+  } else {
+    listEl.innerHTML = h.map(item => `
+      <div class="box" style="font-size:14px; border-left:5px solid #B71C1C; padding:12px; margin-bottom:10px;">
+        <b style="color:#B71C1C; font-size:16px;">${item.title}</b> <span style="font-size:11px; color:#888;">(${item.date})</span><br>
+        <div style="margin-top:8px;">結果：${item.res.join(" → ")}</div>
+        <div style="font-weight:bold; margin-top:4px;">オッズ：${item.odds}倍</div>
+        <div style="color:${item.winners.length > 0 ? '#2E7D32' : '#777'}; font-weight:bold;">的中：${item.winners.length > 0 ? item.winners.join(", ") : "なし"}</div>
+      </div>
+    `).join("");
+  }
+  show("screen-history");
+}
 
 function addMenu(){
   const val = $("menuInput").value.trim();
@@ -229,7 +227,7 @@ function nextStepPrediction(){
 
 function startPrediction(){
   if(players.length === 0) return alert("参加者を追加してください");
-  players.push({name:"CPU(料理人)", prediction:[...Array(menus.length).keys()].map(i=>i+1).sort(()=>Math.random()-0.5).slice(0,3)});
+  players.push({name:"伝説のコックさん(CPU)", prediction:[...Array(menus.length).keys()].map(i=>i+1).sort(()=>Math.random()-0.5).slice(0,3)});
   currentPlayer = 0; nextStepPrediction();
 }
 
@@ -293,7 +291,7 @@ function judge(){
 
   $("ticketPredictions").innerHTML = "【全員の予想】<br>" + players.map(p => `${p.name}: ${p.prediction.map(idx=>menus[idx-1].name).join("→")}`).join("<br>");
 
-  // 自動保存
+  // 自動保存ロジック
   const historyData = JSON.parse(localStorage.getItem("chukaHistory") || "[]");
   historyData.unshift({ title: raceTitle, date: date, res: tempResult.map(n => menus[n-1].name), odds: totalOdds.toFixed(1), winners: winners });
   localStorage.setItem("chukaHistory", JSON.stringify(historyData.slice(0, 10)));
