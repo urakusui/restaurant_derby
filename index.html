@@ -78,6 +78,7 @@ button {
   <input id="playerInput" placeholder="参加者名">
   <button onclick="addPlayer()">追加</button>
   <div id="playerList"></div>
+  <button onclick="clearPlayers()">参加者をすべてクリア</button>
   <button onclick="startPrediction()">予想開始</button>
 </div>
 
@@ -333,6 +334,13 @@ function resetApp() {
   currentPlayer = 0;
   show("screen-menu");
 }
+  
+function clearPlayers() {
+  if (!confirm("参加者をすべて削除しますか？")) return;
+  players = [];
+  playerList.innerHTML = "";
+}
+
 </script>
 
 </body>
