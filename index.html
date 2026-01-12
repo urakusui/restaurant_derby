@@ -19,7 +19,6 @@ button:active:not(:disabled) { transform: scale(0.96); }
 .btn-back { background: linear-gradient(#616161, #424242); }
 .btn-danger { background: linear-gradient(#EF6C00, #E65100); }
 
-/* メニュー一覧フォントサイズ調整 */
 #menuList, #playerList, #historyList { 
   max-height: 250px; 
   overflow-y: auto; 
@@ -35,7 +34,6 @@ button:active:not(:disabled) { transform: scale(0.96); }
 .result-slot.active { border: 2px solid #F9A825; background: #fffde7; font-weight: bold; }
 .result-slot::after { content: "修正"; position: absolute; right: 12px; font-size: 11px; color: #999; }
 
-/* 結果カードのデザイン */
 .result-card { border: 2px solid #333; border-radius: 12px; background: #fff; overflow: hidden; position: relative; }
 .card-header { background: #B71C1C; color: #fff; padding: 10px; text-align: center; }
 .card-body { padding: 20px; text-align: center; }
@@ -47,10 +45,11 @@ button:active:not(:disabled) { transform: scale(0.96); }
 
 .odds-tag { color: #888; margin-left: 6px; font-size: 0.9em; }
 
-/* 紙吹雪のアニメーション（下から上へ） */
+/* 噴水のような紙吹雪アニメーション */
 .confetti { position: fixed; width: 10px; height: 10px; bottom: -20px; z-index: 9999; pointer-events: none; animation: fountain var(--duration) ease-out forwards; }
 @keyframes fountain {
   0% { transform: translateY(0) translateX(0) rotate(0deg); opacity: 1; }
+  50% { opacity: 1; }
   100% { transform: translateY(var(--y)) translateX(var(--x)) rotate(720deg); opacity: 0; }
 }
 </style>
@@ -260,10 +259,9 @@ function selectResult(n){
 function judge(){
   if(tempResult.filter(n=>n).length < 3) return alert("3位まで選んでください");
   const shop = $("shopInput").value || "王将";
-  
-  // レース名のランダム化
-  const suffix = ["記念", "S", "賞"][Math.floor(Math.random() * 3)];
-  const raceTitle = `第11R ${shop}${suffix}`;
+  const suffixes = ["記念", "S", "GP"];
+  const randomSuffix = suffixes[Math.floor(Math.random() * suffixes.length)];
+  const raceTitle = `第11R ${shop}${randomSuffix}`;
   
   const date = today();
   let totalOdds = 1.0;
@@ -289,7 +287,6 @@ function judge(){
 
   $("ticketPredictions").innerHTML = "【全員の予想】<br>" + players.map(p => `${p.name}: ${p.prediction.map(idx=>menus[idx-1].name).join("→")}`).join("<br>");
 
-  // 履歴保存（オッズも含める）
   const historyData = JSON.parse(localStorage.getItem("chukaHistory") || "[]");
   historyData.unshift({ 
     title: raceTitle, 
@@ -304,13 +301,14 @@ function judge(){
 }
 
 function launchFountainConfetti() {
+  const colors = ["#ff0","#f0f","#0ff","#f00","#0f0","#fff"];
   for (let i = 0; i < 60; i++) {
     const c = document.createElement("div");
     c.className = "confetti";
     c.style.left = "50vw";
-    c.style.backgroundColor = ["#ff0","#f0f","#0ff","#f00","#0f0","#fff"][Math.floor(Math.random()*6)];
-    const xMove = (Math.random() - 0.5) * 400;
-    const yMove = -(Math.random() * 500 + 300);
+    c.style.backgroundColor = colors[Math.floor(Math.random()*6)];
+    const xMove = (Math.random() - 0.5) * 600; // 横の広がり
+    const yMove = -(Math.random() * 600 + 400); // 上への高さ
     const duration = Math.random() * 2 + 1.5;
     c.style.setProperty('--x', `${xMove}px`);
     c.style.setProperty('--y', `${yMove}px`);
