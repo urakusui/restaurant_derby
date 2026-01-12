@@ -101,13 +101,13 @@ hr { border: 0; border-top: 1px solid #ccc; margin: 10px 0; }
     <hr>
     <div id="ticketPredictions" style="font-size:12px; color:#555;"></div>
   </div>
-  <button class="btn-back" style="margin-top:15px" onclick="resetApp()">トップに戻る</button>
+  <button class="btn-back" style="margin-top:15px" onclick="resetApp()">最初から</button>
 </div>
 
 <div id="screen-history" class="box hidden">
   <h3>過去の履歴</h3>
   <div id="historyList"></div>
-  <button class="btn-back" onclick="show('screen-menu')">戻る</button>
+  <button class="btn-back" onclick="show('screen-menu')">トップに戻る</button>
 </div>
 
 <script>
@@ -156,16 +156,6 @@ function addPlayer(){
   $("playerInput").value = "";
 }
 
-/* 予想・修正ロジック */
-function nextStepPrediction(){
-  if(currentPlayer >= players.length){ showResultSelect(); return; }
-  const p = players[currentPlayer];
-  if(p.name.includes("CPU")){ currentPlayer++; nextStepPrediction(); return; }
-  tempPrediction = [null, null, null]; activePredictSlot = 0;
-  $("playerTitle").innerText = `予想：${p.name}`;
-  updatePredictUI(); show("screen-prediction");
-}
-
 function clearPredictSlot(i){ tempPrediction[i] = null; activePredictSlot = i; updatePredictUI(); }
 
 function updatePredictUI(){
@@ -187,6 +177,15 @@ function selectMenu(n){
   updatePredictUI();
 }
 
+function nextStepPrediction(){
+  if(currentPlayer >= players.length){ showResultSelect(); return; }
+  const p = players[currentPlayer];
+  if(p.name.includes("CPU")){ currentPlayer++; nextStepPrediction(); return; }
+  tempPrediction = [null, null, null]; activePredictSlot = 0;
+  $("playerTitle").innerText = `予想：${p.name}`;
+  updatePredictUI(); show("screen-prediction");
+}
+
 function startPrediction(){
   if(players.length === 0) return alert("参加者を追加してください");
   players.push({name:"CPU(料理人)", prediction:[...Array(menus.length).keys()].map(i=>i+1).sort(()=>Math.random()-0.5).slice(0,3)});
@@ -199,7 +198,6 @@ function savePrediction(){
   currentPlayer++; nextStepPrediction();
 }
 
-/* 結果・演出ロジック */
 function showResultSelect(){
   tempResult = [null, null, null]; activeResultSlot = 0;
   updateResultUI(); show("screen-result");
@@ -229,29 +227,41 @@ function selectResult(n){
 function judge(){
   if(tempResult.filter(n=>n).length < 3) return alert("3位まで選んでください");
   const shop = $("shopInput").value || "王将";
-  $("raceTitle").innerText = `第11R ${shop}記念`;
-  $("ticketDate").innerText = today();
+  const raceTitleText = `第11R ${shop}記念`;
+  $("raceTitle").innerText = raceTitleText;
+  const dateText = today();
+  $("ticketDate").innerText = dateText;
   
-  // 3連単オッズ計算
   let totalOdds = 1.0;
-  $("ticketResult").innerHTML = tempResult.map((n,i) => {
+  const resultNames = tempResult.map((n,i) => {
     const m = menus[n-1];
     totalOdds *= parseFloat(m.odds);
     return `${i+1}着：${m.name} (${m.odds}倍)`;
-  }).join("<br>");
-  
+  });
+  $("ticketResult").innerHTML = resultNames.join("<br>");
   $("ticketOdds").innerText = `3連単 確定オッズ: ${totalOdds.toFixed(1)}倍`;
   
-  // 的中判定
   let winners = players.filter(p => p.prediction.every((v,i) => v === tempResult[i])).map(p=>p.name);
   if(winners.length > 0){
     $("ticketWinners").innerHTML = `★ 的中！ ★<br>${winners.join(", ")}`;
-    launchConfetti(); // 紙吹雪
+    launchConfetti();
   } else {
     $("ticketWinners").innerHTML = "的中者なし";
   }
   
   $("ticketPredictions").innerHTML = "【全員の予想】<br>" + players.map(p => `${p.name}: ${p.prediction.map(idx=>menus[idx-1].name).join("→")}`).join("<br>");
+
+  // 履歴保存の処理
+  const historyData = JSON.parse(localStorage.getItem("chukaHistory") || "[]");
+  historyData.unshift({
+    title: raceTitleText,
+    date: dateText,
+    res: tempResult.map(n => menus[n-1].name),
+    odds: totalOdds.toFixed(1),
+    winners: winners
+  });
+  localStorage.setItem("chukaHistory", JSON.stringify(historyData.slice(0, 10)));
+
   show("screen-ticket");
 }
 
@@ -269,11 +279,28 @@ function launchConfetti() {
 
 function showHistory(){
   const h = JSON.parse(localStorage.getItem("chukaHistory")||"[]");
-  $("historyList").innerHTML = h.length === 0 ? "履歴なし" : h.map(item => `<div class="box" style="font-size:12px; border-left:4px solid #B71C1C"><b>${item.title}</b> (${item.date})<br>結果：${item.res.join(" → ")}</div>`).join("");
+  const listEl = $("historyList");
+  if(h.length === 0){
+    listEl.innerHTML = "履歴なし";
+  } else {
+    listEl.innerHTML = h.map(item => `
+      <div class="box" style="font-size:12px; border-left:4px solid #B71C1C">
+        <b>${item.title}</b> (${item.date})<br>
+        結果：${item.res.join(" → ")}<br>
+        オッズ：${item.odds}倍 / 的中：${item.winners.length > 0 ? item.winners.join(", ") : "なし"}
+      </div>
+    `).join("");
+  }
   show("screen-history");
 }
 
-function resetApp(){ menus=[]; players=[]; show("screen-menu"); $("menuList").innerHTML="メニューを追加してください"; }
+function resetApp(){ 
+  menus=[]; players=[]; currentPlayer=0; 
+  tempPrediction=[null,null,null]; tempResult=[null,null,null];
+  $("menuList").innerHTML="メニューを追加してください"; 
+  $("playerList").innerHTML="参加者がいません";
+  show("screen-menu"); 
+}
 </script>
 </body>
 </html>
