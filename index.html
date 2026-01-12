@@ -340,7 +340,7 @@ function judge() {
 
   let combinedOdds = 1;
   tempResult.forEach(n=>combinedOdds*=parseFloat(menus[n-1].odds));
-  ticketOdds.innerHTML = `<strong>合成オッズ：</strong>${combinedOdds.toFixed(1)}倍`;
+  ticketOdds.innerHTML = `<strong>確定オッズ：</strong>${combinedOdds.toFixed(1)}倍`;
 
   ticketWinners.innerHTML = players.map(p=>{
     const hit = p.prediction.filter((v,i)=>v===tempResult[i]).length;
