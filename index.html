@@ -277,9 +277,15 @@ function updatePredictSlots() {
     .forEach((e,idx)=>e.classList.toggle("active", idx===activePredictSlot));
 }
 function selectMenu(n) {
+  // すでに他の着順に入っていたら消す
+  tempPrediction = tempPrediction.map(v => v === n ? null : v);
+
+  // アクティブな着順にセット
   tempPrediction[activePredictSlot] = n;
+
   updatePredictSlots();
 }
+  
 function savePrediction() {
   if (tempPrediction.filter(Boolean).length !== 3)
     return alert("3つすべて選んでください");
@@ -328,7 +334,7 @@ function judge() {
 
   let combinedOdds = 1;
   tempResult.forEach(n=>combinedOdds*=parseFloat(menus[n-1].odds));
-  ticketOdds.innerHTML = `<strong>合成オッズ：</strong>${combinedOdds.toFixed(1)}倍`;
+  ticketOdds.innerHTML = `<strong>オッズ：</strong>${combinedOdds.toFixed(1)}倍`;
 
   ticketWinners.innerHTML = players.map(p=>{
     const hit = p.prediction.filter((v,i)=>v===tempResult[i]).length;
