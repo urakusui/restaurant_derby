@@ -19,18 +19,23 @@ button:active:not(:disabled) { transform: scale(0.96); }
 .btn-back { background: linear-gradient(#616161, #424242); }
 .btn-danger { background: linear-gradient(#EF6C00, #E65100); }
 
+/* メニュー一覧のフォントサイズをボタン(16px)に合わせる */
+#menuList, #playerList { 
+  max-height: 250px; 
+  overflow-y: auto; 
+  margin: 10px 0; 
+  padding: 10px; 
+  background: #f0f0f0; 
+  border-radius: 6px; 
+  font-size: 16px; /* ボタンと同じサイズ */
+  line-height: 1.6;
+}
+
 .result-slot { padding: 12px; border: 1px solid #ddd; margin: 5px 0; border-radius: 6px; background: #fafafa; cursor: pointer; position: relative; }
 .result-slot.active { border: 2px solid #F9A825; background: #fffde7; font-weight: bold; }
 .result-slot::after { content: "修正"; position: absolute; right: 12px; font-size: 11px; color: #999; }
 
-/* 結果カードのデザイン */
-.result-card {
-  border: 2px solid #333;
-  border-radius: 12px;
-  background: #fff;
-  overflow: hidden;
-  position: relative;
-}
+.result-card { border: 2px solid #333; border-radius: 12px; background: #fff; overflow: hidden; position: relative; }
 .card-header { background: #B71C1C; color: #fff; padding: 10px; text-align: center; }
 .card-body { padding: 20px; text-align: center; }
 .card-row { margin: 10px 0; padding: 8px 0; border-bottom: 1px dashed #eee; }
@@ -39,20 +44,17 @@ button:active:not(:disabled) { transform: scale(0.96); }
 .card-odds { font-size: 24px; color: #C62828; font-weight: 900; }
 .card-winners { font-size: 20px; color: #2E7D32; background: #e8f5e9; padding: 10px; border-radius: 8px; }
 
-#menuList, #playerList, #historyList { max-height: 200px; overflow-y: auto; margin: 10px 0; padding: 8px; background: #f0f0f0; border-radius: 6px; font-size: 14px; }
 .odds-tag { color: #888; margin-left: 6px; font-size: 0.9em; }
 
-/* 紙吹雪のアニメーション（下から上へ） */
-.confetti {
-  position: fixed; width: 10px; height: 10px;
-  bottom: -20px; z-index: 9999; pointer-events: none;
-  animation: fountain var(--duration) ease-out forwards;
-}
+/* 紙吹雪のアニメーション */
+.confetti { position: fixed; width: 10px; height: 10px; bottom: -20px; z-index: 9999; pointer-events: none; animation: fountain var(--duration) ease-out forwards; }
 @keyframes fountain {
   0% { transform: translateY(0) translateX(0) rotate(0deg); opacity: 1; }
   50% { opacity: 1; }
   100% { transform: translateY(var(--y)) translateX(var(--x)) rotate(720deg); opacity: 0; }
 }
+
+#historyList { max-height: 300px; overflow-y: auto; }
 </style>
 </head>
 <body>
@@ -109,21 +111,12 @@ button:active:not(:disabled) { transform: scale(0.96); }
       <div id="res-date" style="font-size: 12px; opacity: 0.8;"></div>
     </div>
     <div class="card-body">
-      <div class="card-row">
-        <span class="card-label">【到着結果】</span>
-        <div id="res-resultList" class="card-value"></div>
-      </div>
-      <div class="card-row">
-        <span class="card-label">【確定オッズ】</span>
-        <div id="res-totalOdds" class="card-odds"></div>
-      </div>
-      <div class="card-row">
-        <span class="card-label">【 的中者 】</span>
-        <div id="res-winners" class="card-winners"></div>
-      </div>
+      <div class="card-row"><span class="card-label">【到着結果】</span><div id="res-resultList" class="card-value"></div></div>
+      <div class="card-row"><span class="card-label">【確定オッズ】</span><div id="res-totalOdds" class="card-odds"></div></div>
+      <div class="card-row"><span class="card-label">【 的中者 】</span><div id="res-winners" class="card-winners"></div></div>
     </div>
   </div>
-  <div id="ticketPredictions" style="font-size:12px; color:#555; margin-top:10px; padding:10px;"></div>
+  <div id="ticketPredictions" style="font-size:14px; color:#555; margin-top:10px; padding:10px;"></div>
   <button class="btn-back" style="margin-top:15px" onclick="resetApp()">最初から</button>
 </div>
 
@@ -158,7 +151,7 @@ function addMenu(){
   if(menus.some(m => m.name === val)) { alert("既に追加されています"); return; }
   const menu = {name: val, odds: (Math.random() * 8 + 1).toFixed(1)};
   menus.push(menu);
-  $("menuList").innerHTML = menus.map((m,i)=>`${i+1}. ${m.name} <span class="odds-tag">(${m.odds}倍)</span>`).join("<br>");
+  $("menuList").innerHTML = menus.map((m,i)=>`・ ${m.name} <span class="odds-tag">(${m.odds}倍)</span>`).join("<br>");
   let h = JSON.parse(localStorage.getItem("menuNameHistory")||"[]");
   if(!h.includes(val)){ h.unshift(val); localStorage.setItem("menuNameHistory", JSON.stringify(h.slice(0,20))); loadAllHistories(); }
   $("menuInput").value = "";
@@ -175,7 +168,7 @@ function addPlayer(){
   const val = $("playerInput").value.trim();
   if(!val) return;
   players.push({name: val, prediction: []});
-  $("playerList").innerHTML = players.map(p => p.name).join("<br>");
+  $("playerList").innerHTML = players.map(p => `・ ${p.name}`).join("<br>");
   $("playerInput").value = "";
 }
 
@@ -253,7 +246,6 @@ function judge(){
   const raceTitle = `第11R ${shop}記念`;
   const date = today();
   
-  // 計算と代入
   let totalOdds = 1.0;
   const resHtml = tempResult.map((n,i) => {
     const m = menus[n-1];
@@ -261,7 +253,6 @@ function judge(){
     return `${i+1}着：${m.name}`;
   }).join("<br>");
 
-  // カードに表示
   $("res-raceTitle").innerText = raceTitle;
   $("res-date").innerText = date;
   $("res-resultList").innerHTML = resHtml;
@@ -277,7 +268,6 @@ function judge(){
 
   $("ticketPredictions").innerHTML = "【全員の予想】<br>" + players.map(p => `${p.name}: ${p.prediction.map(idx=>menus[idx-1].name).join("→")}`).join("<br>");
 
-  // 履歴保存
   const historyData = JSON.parse(localStorage.getItem("chukaHistory") || "[]");
   historyData.unshift({ title: raceTitle, date: date, res: tempResult.map(n => menus[n-1].name), odds: totalOdds.toFixed(1), winners: winners });
   localStorage.setItem("chukaHistory", JSON.stringify(historyData.slice(0, 10)));
@@ -285,25 +275,19 @@ function judge(){
   show("screen-ticket");
 }
 
-// 紙吹雪：下から噴水のように出す演出
 function launchFountainConfetti() {
   const colors = ["#ff0", "#f0f", "#0ff", "#f00", "#0f0", "#fff"];
   for (let i = 0; i < 60; i++) {
     const c = document.createElement("div");
     c.className = "confetti";
-    // 画面中央下から発射
     c.style.left = "50vw";
     c.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-    
-    // ランダムな飛散距離と高さ
-    const xMove = (Math.random() - 0.5) * 400; // 左右
-    const yMove = -(Math.random() * 500 + 300); // 上方向
+    const xMove = (Math.random() - 0.5) * 400;
+    const yMove = -(Math.random() * 500 + 300);
     const duration = Math.random() * 2 + 1.5;
-    
     c.style.setProperty('--x', `${xMove}px`);
     c.style.setProperty('--y', `${yMove}px`);
     c.style.setProperty('--duration', `${duration}s`);
-    
     document.body.appendChild(c);
     setTimeout(() => c.remove(), duration * 1000);
   }
@@ -312,7 +296,7 @@ function launchFountainConfetti() {
 function showHistory(){
   const h = JSON.parse(localStorage.getItem("chukaHistory")||"[]");
   $("historyList").innerHTML = h.length === 0 ? "履歴なし" : h.map(item => `
-    <div class="box" style="font-size:12px; border-left:5px solid #B71C1C; padding:10px;">
+    <div class="box" style="font-size:14px; border-left:5px solid #B71C1C; padding:10px;">
       <b>${item.title}</b> (${item.date})<br>
       結果：${item.res.join(" → ")}<br>
       オッズ：${item.odds}倍 / 的中：${item.winners.length > 0 ? item.winners.join(", ") : "なし"}
