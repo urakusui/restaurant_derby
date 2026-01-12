@@ -43,6 +43,7 @@ th { background:#eee; }
 .waku-3 { background:#f44336; color:#fff; } .waku-4 { background:#2196f3; color:#fff; }
 .waku-5 { background:#ffeb3b; color:#000; } .waku-6 { background:#4caf50; color:#fff; }
 .waku-7 { background:#ff9800; color:#fff; } .waku-8 { background:#ffc0cb; color:#000; }
+
 /* 紙吹雪アニメーション */
 @keyframes confetti-fall {
   0% { transform: translateY(0) rotate(0deg); opacity:1; }
@@ -52,7 +53,6 @@ th { background:#eee; }
   position: absolute;
   width: 8px;
   height: 8px;
-  background-color: #f44336;
   border-radius: 50%;
   animation: confetti-fall 1.5s ease-out forwards;
   z-index: 10000;
@@ -82,12 +82,11 @@ th { background:#eee; }
     <button type="button" class="btn-main" style="width:40px;height:40px;padding:0;font-size:24px;" onclick="toggleModal()">？</button>
   </div>
 
-  <!-- 店舗名・メニューをdatalistで候補表示 -->
-  <input id="shopName" list="shopList" placeholder="店舗名（例：大阪駅前第2ビル）">
-  <datalist id="shopList"></datalist>
+  <input id="shopName" placeholder="店舗名（例：大阪駅前第2ビル）" list="shopHistory">
+  <datalist id="shopHistory"></datalist>
 
-  <input id="menuName" list="menuListData" placeholder="メニュー名（例：餃子）">
-  <datalist id="menuListData"></datalist>
+  <input id="menuName" placeholder="メニュー名（例：餃子）" list="menuHistory">
+  <datalist id="menuHistory"></datalist>
 
   <button type="button" class="btn-add" onclick="addMenu()">＋ メニューを追加</button>
 
@@ -138,7 +137,7 @@ th { background:#eee; }
 
 <!-- 結果発表 -->
 <div id="screen-ticket" class="box hidden">
-  <div style="text-align:center; border:2px solid #333; padding:20px; border-radius:10px;">
+  <div style="text-align:center; border:2px solid #333; padding:20px; border-radius:10px; position:relative;">
     <h2 id="finalTitle">結果発表</h2>
     <div id="finalResult" style="font-size:16px; margin:15px 0; line-height:1.6;"></div>
     <div id="finalOdds" style="color:#B71C1C; font-size:22px; font-weight:900;"></div>
@@ -157,61 +156,45 @@ th { background:#eee; }
 
 <script>
 let menus=[], players=[], currentPlayerIndex=0,tempPrediction=[null,null,null],tempResult=[null,null,null],activeSlot=0,history=[];
+let shopHistorySet = new Set(), menuHistorySet = new Set();
 const $=id=>document.getElementById(id);
 
 function show(id){ ['screen-menu','screen-race','screen-player','screen-predict','screen-result','screen-ticket','screen-history'].forEach(i=>{$(i).classList.add('hidden');}); $(id).classList.remove('hidden'); window.scrollTo(0,0);}
 function toggleModal(){ $('modal-help').classList.toggle('hidden'); }
 
-// --- 過去入力候補用関数 ---
-function addShopToList(shopName){
-  if(!shopName) return;
-  const list=$('shopList');
-  if (![...list.options].some(opt=>opt.value===shopName)){
-    const option=document.createElement('option');
-    option.value=shopName;
-    list.appendChild(option);
-  }
-}
-
-function addMenuToList(menuName){
-  if(!menuName) return;
-  const list=$('menuListData');
-  if (![...list.options].some(opt=>opt.value===menuName)){
-    const option=document.createElement('option');
-    option.value=menuName;
-    list.appendChild(option);
-  }
-}
-
 // --- メニュー ---
 function addMenu(){ 
   if(menus.length>=8){ alert("メニューは最大8品までです"); return; }
   const val=$('menuName').value.trim(); if(!val) return;
-  const odds=(Math.random()*8+1.1).toFixed(1);
-  menus.push({name:val,odds:odds}); 
-  addMenuToList(val); // datalistに追加
-  $('menuName').value=''; 
-  renderMenus();
+  const odds=(Math.random()*8+1.1).toFixed(1); menus.push({name:val,odds:odds}); 
+  menuHistorySet.add(val);
+  renderMenus(); $('menuName').value='';
+  updateDatalist();
 }
-
 function renderMenus(){ 
   const list=$('menuList'); 
   if(menus.length===0){ list.innerHTML='<div style="text-align:center; color:#888;">メニューを追加してください</div>'; return;} 
   list.innerHTML=menus.map((m,i)=>`<div class="list-item"><span style="font-weight:bold;">${i+1}. ${m.name}</span><button type="button" class="btn-del" onclick="removeMenu(${i})">☓</button></div>`).join('');
 }
-
 function removeMenu(i){ menus.splice(i,1); renderMenus(); }
+
+function updateDatalist(){
+  const shopList=$('shopHistory'); shopList.innerHTML='';
+  shopHistorySet.forEach(s=>{shopList.innerHTML+=`<option value="${s}">`;});
+  const menuList=$('menuHistory'); menuList.innerHTML='';
+  menuHistorySet.forEach(m=>{menuList.innerHTML+=`<option value="${m}">`;});
+}
 
 // --- 出走表 ---
 function toRaceTable(){ 
+  const shopVal=$('shopName').value.trim();
+  if(!shopVal){ alert("店舗名を入力してください"); return; }
+  shopHistorySet.add(shopVal);
+  updateDatalist();
   if(menus.length<3){ alert("メニューを3つ以上登録してください"); return;}
   let html='<table><tr><th>枠</th><th>メニュー名</th><th>オッズ</th></tr>';
   menus.forEach((m,i)=>{ const waku=Math.min(8, Math.floor(i/Math.max(1,menus.length/8))+1); html+=`<tr><td class="waku-${waku}">${i+1}</td><td>${m.name}</td><td>${m.odds}倍</td></tr>`; });
-  html+='</table>'; 
-  // 店舗候補追加
-  addShopToList($('shopName').value.trim());
-  $('raceTableArea').innerHTML=html; 
-  show('screen-race');
+  html+='</table>'; $('raceTableArea').innerHTML=html; show('screen-race');
 }
 
 // --- 参加者 ---
@@ -237,46 +220,40 @@ function selectMenuForResult(idx){ tempResult[activeSlot]=idx; const next=tempRe
 // --- 結果発表 ---
 function showResult(){
   if(tempResult.includes(null)){alert("すべての結果を入力してください"); return;}
-  
   const shop=$('shopName').value||'王将';
   const date=new Date();
   const raceNumber = Math.floor(Math.random()*3)+9; // 9〜11
   let totalOdds=1.0;
 
-  // 結果HTML
   const resHtml=tempResult.map((idx,i)=>{
     totalOdds*=parseFloat(menus[idx].odds);
     return `${i+1}着: ${menus[idx].name}`;
   }).join('<br>');
 
-  // 的中者
   const winners=players.filter(p=>JSON.stringify(p.prediction)===JSON.stringify(tempResult));
   const hitHtml = winners.length>0?`🎉 的中！<br>${winners.map(w=>w.name).join(', ')}`:'的中者なし...';
 
-  // 全参加者の予想表示
   const allPredHtml = players.map(p=>{
     const predText = p.prediction.map(i=>menus[i].name).join(' → ');
     return `${p.name}: ${predText}`;
   }).join('<br>');
 
   $('finalTitle').innerHTML=`第${raceNumber}R ${shop} グランプリ`;
-  $('finalResult').innerHTML = `${resHtml}<br><small style="color:#666;">結果入力日時: ${date.toLocaleString()}</small>`;
+  $('finalResult').innerHTML = `${resHtml}<br><small style="color:#666;">レース日時: ${date.toLocaleString()}</small>`;
   $('finalOdds').innerText = `3連単: ${totalOdds.toFixed(1)}倍`;
   $('finalWinners').innerHTML = `${hitHtml}<hr><div style="font-size:14px;">参加者予想:<br>${allPredHtml}</div>`;
 
-  // 履歴保存
   const record={
     date:date.toLocaleDateString(),
     time:date.toLocaleTimeString(),
     shop:shop,
-    raceName:`第${raceNumber}R ${shop} グランプリ`,
+    raceName:`第${raceNumber}R ${shop} ステークス`,
     result:tempResult.map((idx,i)=>({rank:i+1,menu:menus[idx].name,odds:menus[idx].odds}))
   };
   history.unshift(record); if(history.length>10) history.pop();
 
   show('screen-ticket');
 
-  // 的中時のみ紙吹雪演出
   if(winners.length>0){
     for(let i=0;i<30;i++){
       const confetti = document.createElement('div');
@@ -291,20 +268,16 @@ function showResult(){
     }
   }
 }
-// --- 履歴保存 ---
-const record={date:date.toLocaleDateString(),time:date.toLocaleTimeString(),shop:shop,raceName:`${shop} グランプリ`,result:tempResult.map((idx,i)=>({rank:i+1,menu:menus[idx].name,odds:menus[idx].odds}))};
-history.unshift(record); if(history.length>10) history.pop();
 
-show('screen-ticket');}
+// --- 履歴 ---
+function showHistory(){
+  if(history.length===0){ $('historyList').innerHTML='履歴はまだありません'; show('screen-history'); return; }
+  $('historyList').innerHTML = history.map(r=>`<div style="padding:8px;border-bottom:1px solid #ddd;"><b>${r.raceName}</b> <br>${r.date} ${r.time}<br>結果: ${r.result.map(x=>x.rank+'着:'+x.menu+'('+x.odds+'倍)').join(', ')}</div>`).join('');
+  show('screen-history');
+}
 
-// --- 履歴表示 ---
-function showHistory(){ if(history.length===0){ $('historyList').innerHTML='履歴はまだありません'; } else {
-$('historyList').innerHTML=history.map(h=>`<div style="padding:5px;border-bottom:1px solid #ccc;"><b>${h.date} ${h.time}</b><br>店舗: ${h.shop}<br>${h.raceName}<br>${h.result.map(r=>`${r.rank}着: ${r.menu} (${r.odds}倍)`).join('<br>')}</div>`).join('');}
-show('screen-history');}
-
-// --- 初期化 ---
-function resetAll(){ if(!confirm("データをすべて消して最初から戻りますか？")) return; menus=[]; players=[]; currentPlayerIndex=0; $('menuList').innerHTML='<div style="text-align:center; color:#888;">メニューを追加してください</div>'; $('playerList').innerHTML='参加者がいません'; $('shopName').value=''; $('menuName').value=''; $('playerName').value=''; show('screen-menu');}
-
+// --- 全リセット ---
+function resetAll(){ menus=[]; players=[]; tempPrediction=[null,null,null]; tempResult=[null,null,null]; renderMenus(); renderPlayers(); show('screen-menu'); }
 </script>
 </body>
 </html>
