@@ -296,7 +296,7 @@ function showResult(){
 
   // 全員（人間 + CPU）で的中判定
   let winners = [...players, ...cpuResults].filter(p => p.prediction.every((v,i)=>v===tempResult[i]));
-  $('finalWinners').innerText = winners.length>0 ? `的中者: ${winners.map(p=>p.name).join(', ')}` : ''; // 的中者表示
+  $('finalWinners').innerText = winners.length>0 ? `🎉的中者🎉: ${winners.map(p=>p.name).join(', ')}` : ''; // 的中者表示
 
   show('screen-ticket');
   if(winners.length>0) spawnConfetti(); // 的中時に紙吹雪
