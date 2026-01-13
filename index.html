@@ -143,8 +143,8 @@ th { background:#eee; }
     <div id="raceNumber" style="font-weight:bold; margin:10px 0;"></div>
     <div id="finalResult" style="font-size:16px; margin:15px 0; line-height:1.6;"></div>
     <div id="finalOdds" style="color:#B71C1C; font-size:22px; font-weight:900;"></div>
-    <hr>
     <div id="finalWinners" style="color:green; font-weight:bold; font-size:18px; margin-bottom:10px;"></div>
+    <hr>
     <div id="allPredictions" style="color:#333; font-size:14px; text-align:left;"></div>
   </div>
   <button type="button" class="btn-back" onclick="resetAll()">タイトルへ戻る</button>
@@ -273,9 +273,9 @@ function showResult(){
 
   const resHtml=tempResult.map((idx,i)=>{
     totalOdds*=parseFloat(menus[idx].odds);
-    return `${i+1}着: ${menus[idx].name}`;
+    return `${i+1}着: ${menus[idx].name} (${menus[idx].odds}倍)`; // 着順横にオッズ追加
   }).join('<br>');
-  $('finalTitle').innerText=`${shop} ステークス`; 
+  $('finalTitle').innerText=`第${raceNum}R ${shop} ステークス`; // タイトルに第R＋ステークス
   $('finalResult').innerHTML=resHtml; 
   $('finalOdds').innerText=`オッズ合計: ${totalOdds.toFixed(1)}倍`;
 
@@ -296,8 +296,10 @@ function showResult(){
 
   // 全員（人間 + CPU）で的中判定
   let winners = [...players, ...cpuResults].filter(p => p.prediction.every((v,i)=>v===tempResult[i]));
+  $('finalWinners').innerText = winners.length>0 ? `的中者: ${winners.map(p=>p.name).join(', ')}` : ''; // 的中者表示
+
   show('screen-ticket');
-  if(winners.length>0) spawnConfetti();
+  if(winners.length>0) spawnConfetti(); // 的中時に紙吹雪
 
   // 履歴保存
   history.unshift({date:date, raceNum:raceNum, shop:shop, result:tempResult.map(i=>menus[i].name), winners:winners.map(p=>p.name)}); 
