@@ -308,27 +308,33 @@ function showResult(){
 
 // --- 紙吹雪演出 ---
 function spawnConfetti(){ 
-  const colors=['#f44336','#e91e63','#ffeb3b','#4caf50','#2196f3','#ff9800','#9c27b0'];
-  for(let i=0;i<300;i++){
+  const colors=['#f44336','#e91e63','#ffeb3b','#4caf50','#2196f3','#ff9800','#9c27b0','#9c27b0','#ff5722','#00bcd4'];
+  const count = 400; // 紙吹雪の数を増加
+  for(let i=0;i<count;i++){
     const confetti=document.createElement('div');
     confetti.className='confetti';
-    confetti.style.backgroundColor=colors[Math.floor(Math.random()*colors.length)];
-    const size=Math.random()*12+6;
-    confetti.style.width=`${size}px`;
-    confetti.style.height=`${size}px`;
-    const angle = Math.random() * 2 * Math.PI;
-    const distance = Math.random() * 400 + 100;
-    const tx = Math.cos(angle) * distance;
-    const ty = Math.sin(angle) * distance;
-    confetti.style.left=`50%`;
-    confetti.style.top=`50%`;
+    confetti.style.backgroundColor = colors[Math.floor(Math.random()*colors.length)];
+    const size = Math.random()*12+6;
+    confetti.style.width = `${size}px`;
+    confetti.style.height = `${size}px`;
+
+    // 初期位置：画面上部のランダムX
+    confetti.style.left = Math.random() * window.innerWidth + 'px';
+    confetti.style.top  = '-20px';
+
+    // 飛ぶ距離（左右と下方向）
+    const tx = (Math.random()-0.5) * 400;  // -200 ~ +200 px 左右に拡散
+    const ty = window.innerHeight + Math.random()*200; // 画面下まで落下
     confetti.style.setProperty('--tx', `${tx}px`);
     confetti.style.setProperty('--ty', `${ty}px`);
     confetti.style.setProperty('--rotate', `${Math.random()*720}`);
-    confetti.style.animationDuration=`${1.5 + Math.random()*1.5}s`;
-    confetti.style.opacity=1;
+
+    // アニメーション時間ランダム化
+    confetti.style.animationDuration = `${2 + Math.random()*2}s`;
+    confetti.style.opacity = 1;
+
     document.body.appendChild(confetti);
-    setTimeout(()=>{ confetti.remove(); }, 3000);
+    setTimeout(()=>{ confetti.remove(); }, 5000);
   }
 }
 
