@@ -181,15 +181,8 @@ function addMenu(){
 }
 function renderMenus(){ 
   const list=$('menuList'); 
-  if(menus.length===0){ 
-    list.innerHTML='<div style="text-align:center; color:#888;">メニューを追加してください</div>'; 
-    return;
-  } 
-  list.innerHTML=menus.map((m,i)=>`
-    <div class="list-item">
-      <span style="font-weight:bold;">${i+1}. ${m.name}</span>
-      <button type="button" class="btn-del" onclick="removeMenu(${i})">☓</button>
-    </div>`).join('');
+  if(menus.length===0){ list.innerHTML='<div style="text-align:center; color:#888;">メニューを追加してください</div>'; return;} 
+  list.innerHTML=menus.map((m,i)=>`<div class="list-item"><span style="font-weight:bold;">${i+1}. ${m.name}</span><button type="button" class="btn-del" onclick="removeMenu(${i})">☓</button></div>`).join('');
 }
 function removeMenu(i){ menus.splice(i,1); renderMenus(); }
 function updateMenuHistory(val){
