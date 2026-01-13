@@ -158,7 +158,7 @@ th { background:#eee; }
 </div>
 
 <script>
-let menus=[], players=[], cpuNames=['CPU-A','CPU-B'], currentPlayerIndex=0,tempPrediction=[null,null,null],tempResult=[null,null,null],activeSlot=0,history=[];
+let menus=[], players=[], cpuNames=['山岡士郎','栗田ゆう子'], currentPlayerIndex=0,tempPrediction=[null,null,null],tempResult=[null,null,null],activeSlot=0,history=[];
 const $=id=>document.getElementById(id);
 
 function show(id){ ['screen-menu','screen-race','screen-player','screen-predict','screen-result','screen-ticket','screen-history'].forEach(i=>{$(i).classList.add('hidden');}); $(id).classList.remove('hidden'); window.scrollTo(0,0);}
@@ -213,15 +213,6 @@ function renderPlayers(){
 // --- 予想 ---
 function startPrediction(){
   if(players.length===0){alert("参加者を追加してください"); return;} 
-  // CPU参加者予想
-  cpuNames.forEach(cname=>{
-    let pred=[];
-    let idxs=[0,1,2].map(()=>Math.floor(Math.random()*menus.length));
-    // 重複禁止
-    idxs = [...new Set(idxs)];
-    while(idxs.length<3) idxs.push(Math.floor(Math.random()*menus.length));
-    players.push({name:cname,prediction:idxs});
-  });
   currentPlayerIndex=0; setupPredictionScreen();
 }
 function setupPredictionScreen(){ 
@@ -268,25 +259,38 @@ function showResult(){
   const raceNum=Math.floor(Math.random()*3+9); // 9〜11
   $('raceNumber').innerText=`第${raceNum}R`;
   $('raceDateTime').innerText=`${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
-  const resHtml=tempResult.map((idx,i)=>{ totalOdds*=parseFloat(menus[idx].odds); return `${i+1}着: ${menus[idx].name}`;}).join('<br>');
+
+  const resHtml=tempResult.map((idx,i)=>{
+    totalOdds*=parseFloat(menus[idx].odds);
+    return `${i+1}着: ${menus[idx].name}`;
+  }).join('<br>');
   $('finalTitle').innerText=`${shop} ステークス`; 
   $('finalResult').innerHTML=resHtml; 
   $('finalOdds').innerText=`オッズ合計: ${totalOdds.toFixed(1)}倍`;
-  
-  // 的中者
-  let winners=players.filter(p=>p.prediction.every((v,i)=>v===tempResult[i]));
+
+  // CPUランダム結果
+  const cpuResults = cpuNames.map(name=>{
+    let idxs = [];
+    while(idxs.length < 3){
+        let r = Math.floor(Math.random()*menus.length);
+        if(!idxs.includes(r)) idxs.push(r);
+    }
+    return {name:name, prediction: idxs};
+  });
+
+  // 全員予想表示（CPU含む）
+  const allPlayers = [...players, ...cpuResults];
+  let allPredHtml = allPlayers.map(p=>`${p.name} : ${p.prediction.map(i=>menus[i].name).join(' → ')}`).join('<br>');
+  $('allPredictions').innerHTML = allPredHtml;
+
+  // 的中者は人間プレイヤーのみ
+  let winners = players.filter(p=>p.prediction.every((v,i)=>v===tempResult[i]));
   $('finalWinners').innerText=winners.length>0?`的中者: ${winners.map(p=>p.name).join(', ')}`:'的中者はいません';
-  
-  // 全員予想
-  let allPredHtml=players.map(p=>`${p.name} : ${p.prediction.map(i=>menus[i].name).join(' → ')}`).join('<br>');
-  $('allPredictions').innerHTML=allPredHtml;
-  
+
   show('screen-ticket');
-  
-  // 的中者がいれば紙吹雪
   if(winners.length>0) spawnConfetti();
-  
-  // 履歴に保存
+
+  // 履歴保存
   history.unshift({date:date, raceNum:raceNum, shop:shop, result:tempResult.map(i=>menus[i].name), winners:winners.map(p=>p.name)}); 
   if(history.length>10) history.pop();
 }
