@@ -158,10 +158,15 @@ th { background:#eee; }
 </div>
 
 <script>
-let menus=[], players=[], cpuNames=['山岡士郎','栗田ゆう子'], currentPlayerIndex=0,tempPrediction=[null,null,null],tempResult=[null,null,null],activeSlot=0,history=[];
+let menus=[], players=[], cpuNames=['山岡士郎','栗田ゆう子'], currentPlayerIndex=0,
+    tempPrediction=[null,null,null], tempResult=[null,null,null], activeSlot=0, history=[];
 const $=id=>document.getElementById(id);
 
-function show(id){ ['screen-menu','screen-race','screen-player','screen-predict','screen-result','screen-ticket','screen-history'].forEach(i=>{$(i).classList.add('hidden');}); $(id).classList.remove('hidden'); window.scrollTo(0,0);}
+function show(id){
+  ['screen-menu','screen-race','screen-player','screen-predict','screen-result','screen-ticket','screen-history'].forEach(i=>{$(i).classList.add('hidden');});
+  $(id).classList.remove('hidden'); 
+  window.scrollTo(0,0);
+}
 function toggleModal(){ $('modal-help').classList.toggle('hidden'); }
 
 // --- メニュー ---
@@ -174,7 +179,6 @@ function addMenu(){
   renderMenus(); 
   updateMenuHistory(val);
 }
-
 function renderMenus(){ 
   const list=$('menuList'); 
   if(menus.length===0){ list.innerHTML='<div style="text-align:center; color:#888;">メニューを追加してください</div>'; return;} 
@@ -190,7 +194,10 @@ function updateMenuHistory(val){
 function toRaceTable(){ 
   if(menus.length<3){ alert("メニューを3つ以上登録してください"); return;}
   let html='<table><tr><th>枠</th><th>メニュー名</th><th>オッズ</th></tr>';
-  menus.forEach((m,i)=>{ const waku=Math.min(8, Math.floor(i/Math.max(1,menus.length/8))+1); html+=`<tr><td class="waku-${waku}">${i+1}</td><td>${m.name}</td><td>${m.odds}倍</td></tr>`; });
+  menus.forEach((m,i)=>{ 
+    const waku=Math.min(8, Math.floor(i/Math.max(1,menus.length/8))+1); 
+    html+=`<tr><td class="waku-${waku}">${i+1}</td><td>${m.name}</td><td>${m.odds}倍</td></tr>`; 
+  });
   html+='</table>'; 
   $('raceTableArea').innerHTML=html; 
   show('screen-race');
@@ -230,7 +237,9 @@ function renderPredictionUI(){
     html+=`<div style="padding:10px;margin:5px 0;border:1px solid #ddd;border-radius:4px;${style}" onclick="activeSlot=${i};renderPredictionUI();"><b>${labels[i]}</b> : ${text}</div>`;
   }
   $('predictInputs').innerHTML=html; 
-  $('menuButtons').innerHTML=menus.map((m,i)=>`<button type="button" style="margin:4px 0;background:#eee;color:#333;text-align:left;" onclick="selectMenuForPrediction(${i})" ${tempPrediction.includes(i)?'disabled style="opacity:0.3"':''}>${i+1}. ${m.name} (${m.odds}倍)</button>`).join('');
+  $('menuButtons').innerHTML=menus.map((m,i)=>{
+    return `<button type="button" style="margin:4px 0;background:#eee;color:#333;text-align:left;${tempPrediction.includes(i)?'opacity:0.3;':''}" ${tempPrediction.includes(i)?'disabled':''} onclick="selectMenuForPrediction(${i})">${i+1}. ${m.name} (${m.odds}倍)</button>`;
+  }).join('');
 }
 function selectMenuForPrediction(idx){ tempPrediction[activeSlot]=idx; const next=tempPrediction.indexOf(null); if(next!==-1) activeSlot=next; renderPredictionUI();}
 function confirmPrediction(){ 
@@ -246,7 +255,9 @@ function renderResultUI(){
   for(let i=0;i<3;i++){ const menuIdx=tempResult[i]; const text=menuIdx!==null?menus[menuIdx].name:'（未選択）'; const style=(i===activeSlot)?'background:#FFF3E0;border:2px solid orange;':'background:#fff;'; 
   html+=`<div style="padding:10px;margin:5px 0;border:1px solid #ddd;border-radius:4px;${style}" onclick="activeSlot=${i};renderResultUI();"><b>${labels[i]}</b> : ${text}</div>`;}
   $('resultInputs').innerHTML=html; 
-  $('resultButtons').innerHTML=menus.map((m,i)=>`<button type="button" style="margin:4px 0;background:#eee;color:#333;text-align:left;" onclick="selectMenuForResult(${i})" ${tempResult.includes(i)?'disabled style="opacity:0.3"':''}>${i+1}. ${m.name}</button>`).join('');
+  $('resultButtons').innerHTML=menus.map((m,i)=>{
+    return `<button type="button" style="margin:4px 0;background:#eee;color:#333;text-align:left;${tempResult.includes(i)?'opacity:0.3;':''}" ${tempResult.includes(i)?'disabled':''} onclick="selectMenuForResult(${i})">${i+1}. ${m.name}</button>`;
+  }).join('');
 }
 function selectMenuForResult(idx){ tempResult[activeSlot]=idx; const next=tempResult.indexOf(null); if(next!==-1) activeSlot=next; renderResultUI();}
 
@@ -283,10 +294,8 @@ function showResult(){
   let allPredHtml = allPlayers.map(p=>`${p.name} : ${p.prediction.map(i=>menus[i].name).join(' → ')}`).join('<br>');
   $('allPredictions').innerHTML = allPredHtml;
 
-  // 的中者は人間プレイヤーのみ
-  let winners = players.filter(p=>p.prediction.every((v,i)=>v===tempResult[i]));
-  $('finalWinners').innerText=winners.length>0?`的中者: ${winners.map(p=>p.name).join(', ')}`:'的中者はいません';
-
+  // 全員（人間 + CPU）で的中判定
+  let winners = [...players, ...cpuResults].filter(p => p.prediction.every((v,i)=>v===tempResult[i]));
   show('screen-ticket');
   if(winners.length>0) spawnConfetti();
 
@@ -298,28 +307,26 @@ function showResult(){
 // --- 紙吹雪演出 ---
 function spawnConfetti(){ 
   const colors=['#f44336','#e91e63','#ffeb3b','#4caf50','#2196f3','#ff9800','#9c27b0'];
-  for(let i=0;i<300;i++){ // 数を増やす
-  const confetti=document.createElement('div');
-  confetti.className='confetti';
-  confetti.style.backgroundColor=colors[Math.floor(Math.random()*colors.length)];
-  const size=Math.random()*12+6; // 少し大きめ
-  confetti.style.width=`${size}px`;
-  confetti.style.height=`${size}px`;
-  const angle=Math.random()*Math.PI*2; // 0〜360°放射線
-  const radius=Math.random()*400+100; // 半径を大きく
-  confetti.style.left=`50%`;
-  confetti.style.top=`50%`;
-  const angle = Math.random() * 2 * Math.PI; // 0〜360°
-  const distance = Math.random() * 400 + 100; // 放射線の距離
-  const tx = Math.cos(angle) * distance; // X方向
-  const ty = Math.sin(angle) * distance; // Y方向
-  confetti.style.setProperty('--tx', `${tx}px`);
-  confetti.style.setProperty('--ty', `${ty}px`);
-  confetti.style.setProperty('--rotate', `${Math.random()*720}`);
-  confetti.style.animationDuration=`${1.5 + Math.random()*1.5}s`;  confetti.style.animationDuration=`${1.5 + Math.random()*1.5}s`; // 長め
-  confetti.style.opacity=1;
-  document.body.appendChild(confetti);
-  setTimeout(()=>{ confetti.remove(); }, 3000); // 少し長く表示
+  for(let i=0;i<300;i++){
+    const confetti=document.createElement('div');
+    confetti.className='confetti';
+    confetti.style.backgroundColor=colors[Math.floor(Math.random()*colors.length)];
+    const size=Math.random()*12+6;
+    confetti.style.width=`${size}px`;
+    confetti.style.height=`${size}px`;
+    const angle = Math.random() * 2 * Math.PI;
+    const distance = Math.random() * 400 + 100;
+    const tx = Math.cos(angle) * distance;
+    const ty = Math.sin(angle) * distance;
+    confetti.style.left=`50%`;
+    confetti.style.top=`50%`;
+    confetti.style.setProperty('--tx', `${tx}px`);
+    confetti.style.setProperty('--ty', `${ty}px`);
+    confetti.style.setProperty('--rotate', `${Math.random()*720}`);
+    confetti.style.animationDuration=`${1.5 + Math.random()*1.5}s`;
+    confetti.style.opacity=1;
+    document.body.appendChild(confetti);
+    setTimeout(()=>{ confetti.remove(); }, 3000);
   }
 }
 
@@ -332,7 +339,12 @@ function showHistory(){
 }
 
 // --- リセット ---
-function resetAll(){ menus=[];players=[];show('screen-menu');renderMenus();renderPlayers();}
+function resetAll(){ 
+  menus=[]; players=[]; history=[]; tempPrediction=[null,null,null]; tempResult=[null,null,null]; activeSlot=0;
+  show('screen-menu'); 
+  renderMenus(); 
+  renderPlayers();
+}
 </script>
 </body>
 </html>
