@@ -365,17 +365,20 @@ function spawnConfetti(){
     confetti.style.backgroundColor =
       colors[Math.floor(Math.random() * colors.length)];
 
+    /* ★開始位置を画面外にする */
     confetti.style.left = Math.random() * window.innerWidth + 'px';
-    confetti.style.top = '0px';
+    confetti.style.top  = '-30px';
 
     const tx = (Math.random() - 0.5) * 400;
-    const ty = window.innerHeight + Math.random() * 200;
+    const ty = window.innerHeight + Math.random() * 300;
 
     confetti.style.setProperty('--tx', `${tx}px`);
     confetti.style.setProperty('--ty', `${ty}px`);
     confetti.style.setProperty('--rotate', `${Math.random() * 720}`);
 
-    confetti.style.animationDuration = `${2 + Math.random() * 2}s`;
+    /* ★animationを明示的に指定（重要） */
+    confetti.style.animation =
+      `confetti-fall-boost ${2 + Math.random() * 2}s ease-out forwards`;
 
     document.body.appendChild(confetti);
     setTimeout(() => confetti.remove(), 5000);
