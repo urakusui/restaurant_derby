@@ -140,6 +140,7 @@ th { background:#eee; }
   <div style="text-align:center; border:2px solid #333; padding:20px; border-radius:10px; position:relative;">
     <h2 id="finalTitle">結果発表</h2>
     <div id="raceDateTime" style="color:#555; margin-bottom:15px;"></div>
+    <div id="raceNumber" style="font-weight:bold; margin:10px 0;"></div>
     <div id="finalResult" style="font-size:16px; margin:15px 0; line-height:1.6;"></div>
     <div id="finalOdds" style="color:#B71C1C; font-size:22px; font-weight:900;"></div>
     <div id="finalWinners" style="color:green; font-weight:bold; font-size:18px; margin-bottom:10px;"></div>
@@ -267,7 +268,6 @@ function showResult(){
   const date=new Date(); 
   let totalOdds=1.0;
   const raceNum=Math.floor(Math.random()*3+9); // 9〜11
-  $('raceNumber').innerText=`第${raceNum}R`;
   $('raceDateTime').innerText=`${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
 
   const resHtml=tempResult.map((idx,i)=>{
