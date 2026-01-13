@@ -384,9 +384,13 @@ function spawnConfetti(){
 
 // --- 揺れ演出（SEなし） ---
 function playHitEffect(){
-  document.body.classList.add('hit-effect');
+  const resultBox = document.querySelector('#screen-ticket > div');
+  if (!resultBox) return;
+
+  resultBox.classList.add('hit-effect');
+
   setTimeout(() => {
-    document.body.classList.remove('hit-effect');
+    resultBox.classList.remove('hit-effect');
   }, 500);
 }
 
