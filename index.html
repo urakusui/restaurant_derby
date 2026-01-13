@@ -62,6 +62,20 @@ th { background:#eee; }
   z-index: 10000;
   pointer-events: none;
 }
+<!-- 揺れ演出 -->
+@keyframes hit-shake {
+  0%   { transform: translateX(0); }
+  15%  { transform: translateX(-12px); }
+  30%  { transform: translateX(12px); }
+  45%  { transform: translateX(-8px); }
+  60%  { transform: translateX(8px); }
+  75%  { transform: translateX(-4px); }
+  100% { transform: translateX(0); }
+}
+
+.hit-effect {
+  animation: hit-shake 0.45s ease-out;
+}
 </style>
 </head>
 <body>
@@ -293,11 +307,21 @@ function showResult(){
   $('allPredictions').innerHTML = allPredHtml;
 
   // 的中者判定
-  let winners = [...players, ...cpuResults].filter(p => p.prediction.every((v,i)=>v===tempResult[i]));
-  $('finalWinners').innerText = winners.length>0 ? `🎉的中者🎉: ${winners.map(p=>p.name).join(', ')}` : '';
+let winners = [...players, ...cpuResults]
+  .filter(p => p.prediction.every((v,i)=>v===tempResult[i]));
 
+// ★ここが「的中判定箇所」
+if (winners.length > 0) {
+  playHitEffect();   // 画面揺れ
+  spawnConfetti();   // 紙吹雪（既存）
+}
+
+$('finalWinners').innerText =
+  winners.length > 0
+    ? `🎉的中者🎉: ${winners.map(p=>p.name).join(', ')}`
+    : '';
+  
   show('screen-ticket');
-  if(winners.length>0) spawnConfetti();
 
   // 履歴保存
   history.unshift({
@@ -340,6 +364,15 @@ function spawnConfetti(){
     document.body.appendChild(confetti);
     setTimeout(()=>{ confetti.remove(); }, 5000);
   }
+}
+
+// ★SEなし・揺れのみ
+function playHitEffect(){
+  document.body.classList.add('hit-effect');
+
+  setTimeout(() => {
+    document.body.classList.remove('hit-effect');
+  }, 500);
 }
 
 // --- 履歴表示 ---
