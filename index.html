@@ -272,13 +272,12 @@ function showResult(){
 
   const resHtml=tempResult.map((idx,i)=>{
     totalOdds*=parseFloat(menus[idx].odds);
-    return `${i+1}着: ${menus[idx].name} (${menus[idx].odds}倍)`; // 着順横にオッズ追加
+    return `${i+1}着: ${menus[idx].name} (${menus[idx].odds}倍)`;
   }).join('<br>');
-  $('finalTitle').innerText=`第${raceNum}R ${shop} ステークス`; // タイトルに第R＋ステークス
+  $('finalTitle').innerText=`第${raceNum}R ${shop} ステークス`; 
   $('finalResult').innerHTML=resHtml; 
   $('finalOdds').innerText=`オッズ合計: ${totalOdds.toFixed(1)}倍`;
 
-  // CPUランダム結果
   const cpuResults = cpuNames.map(name=>{
     let idxs = [];
     while(idxs.length < 3){
@@ -288,23 +287,28 @@ function showResult(){
     return {name:name, prediction: idxs};
   });
 
-  // 全員予想表示（CPU含む）
   const allPlayers = [...players, ...cpuResults];
-  let allPredHtml = allPlayers.map(p=>`${p.name} : ${p.prediction.map(i=>menus[i].name).join(' → ')}`).join('<br>');
+  let allPredHtml = allPlayers.map(p=>`${p.name} : ${p.prediction.map(i=>menus[i].name).join(' → ')}`).join('<br>');.join('<br>');
   $('allPredictions').innerHTML = allPredHtml;
 
-  // 全員（人間 + CPU）で的中判定
+  // 的中者判定
   let winners = [...players, ...cpuResults].filter(p => p.prediction.every((v,i)=>v===tempResult[i]));
-  $('finalWinners').innerText = winners.length>0 ? `🎉的中者🎉: ${winners.map(p=>p.name).join(', ')}` : ''; // 的中者表示
+  $('finalWinners').innerText = winners.length>0 ? `🎉的中者🎉: ${winners.map(p=>p.name).join(', ')}` : '';
 
   show('screen-ticket');
-  if(winners.length>0) spawnConfetti(); // 的中時に紙吹雪
+  if(winners.length>0) spawnConfetti();
 
   // 履歴保存
-  history.unshift({date:date, raceNum:raceNum, shop:shop, result:tempResult.map(i=>menus[i].name), winners:winners.map(p=>p.name)}); 
+  history.unshift({
+    date: date,
+    raceNum: raceNum,
+    shop: shop,
+    result: tempResult.map(i => menus[i].name),
+    winners: winners.map(p => p.name)
+  });
   if(history.length>10) history.pop();
 }
-
+  
 // --- 紙吹雪演出 ---
 function spawnConfetti(){ 
   const colors=['#f44336','#e91e63','#ffeb3b','#4caf50','#2196f3','#ff9800','#9c27b0','#9c27b0','#ff5722','#00bcd4'];
