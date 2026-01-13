@@ -278,53 +278,65 @@ function selectMenuForResult(idx){ tempResult[activeSlot]=idx; const next=tempRe
 
 // --- 結果発表 ---
 function showResult(){ 
-  if(tempResult.includes(null)){alert("すべての結果を入力してください"); return;}
-  const shop=$('shopName').value||'王将'; 
-  const date=new Date(); 
-  let totalOdds=1.0;
-  const raceNum=Math.floor(Math.random()*3+9); // 9〜11
-  $('raceDateTime').innerText=`${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
+  if(tempResult.includes(null)){
+    alert("すべての結果を入力してください");
+    return;
+  }
 
-  const resHtml=tempResult.map((idx,i)=>{
-    totalOdds*=parseFloat(menus[idx].odds);
-    return `${i+1}着: ${menus[idx].name} (${menus[idx].odds}倍)`;
+  const shop = $('shopName').value || '王将';
+  const date = new Date();
+  const raceNum = Math.floor(Math.random() * 3 + 9); // 9〜11R
+
+  $('raceDateTime').innerText =
+    `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
+
+  let totalOdds = 1.0;
+  const resHtml = tempResult.map((idx, i) => {
+    totalOdds *= parseFloat(menus[idx].odds);
+    return `${i + 1}着: ${menus[idx].name} (${menus[idx].odds}倍)`;
   }).join('<br>');
-  $('finalTitle').innerText=`第${raceNum}R ${shop} ステークス`; 
-  $('finalResult').innerHTML=resHtml; 
-  $('finalOdds').innerText=`オッズ合計: ${totalOdds.toFixed(1)}倍`;
 
-  const cpuResults = cpuNames.map(name=>{
+  $('finalTitle').innerText = `第${raceNum}R ${shop} ステークス`;
+  $('finalResult').innerHTML = resHtml;
+  $('finalOdds').innerText = `オッズ合計: ${totalOdds.toFixed(1)}倍`;
+
+  // CPU予想
+  const cpuResults = cpuNames.map(name => {
     let idxs = [];
-    while(idxs.length < 3){
-        let r = Math.floor(Math.random()*menus.length);
-        if(!idxs.includes(r)) idxs.push(r);
+    while (idxs.length < 3) {
+      let r = Math.floor(Math.random() * menus.length);
+      if (!idxs.includes(r)) idxs.push(r);
     }
-    return {name:name, prediction: idxs};
+    return { name: name, prediction: idxs };
   });
 
+  // 全予想表示
   const allPlayers = [...players, ...cpuResults];
-  let allPredHtml = allPlayers.map(p=>`${p.name} : ${p.prediction.map(i=>menus[i].name).join(' → ')}`)
-  .join('<br>');
-  $('allPredictions').innerHTML = allPredHtml;
+  $('allPredictions').innerHTML = allPlayers
+    .map(p => `${p.name} : ${p.prediction.map(i => menus[i].name).join(' → ')}`)
+    .join('<br>');
 
-// 的中者判定
-let winners = [...players, ...cpuResults]
-  .filter(p => p.prediction.every((v,i)=>v===tempResult[i]));
+  // --- 的中者判定 ---
+  const winners = [...players, ...cpuResults]
+    .filter(p => p.prediction.every((v, i) => v === tempResult[i]));
 
-$('finalWinners').innerText =
-  winners.length > 0
-    ? `🎉的中者🎉: ${winners.map(p=>p.name).join(', ')}`
-    : '';
+  $('finalWinners').innerText =
+    winners.length > 0
+      ? `🎉的中者🎉: ${winners.map(p => p.name).join(', ')}`
+      : '';
 
-show('screen-ticket');
+  // 画面表示
+  show('screen-ticket');
 
-// ★画面表示後に演出（ここだけ）
-if (winners.length > 0) {
-  playHitEffect();   // 画面揺れ
-  spawnConfetti();   // 紙吹雪
-}
+  // ★画面表示後に演出
+  if (winners.length > 0) {
+    setTimeout(() => {
+      playHitEffect();   // 揺れ
+      spawnConfetti();   // 紙吹雪
+    }, 200);
+  }
 
-  // 履歴保存
+  // --- 履歴保存 ---
   history.unshift({
     date: date,
     raceNum: raceNum,
@@ -332,45 +344,47 @@ if (winners.length > 0) {
     result: tempResult.map(i => menus[i].name),
     winners: winners.map(p => p.name)
   });
-  if(history.length>10) history.pop();
+  if (history.length > 10) history.pop();
 }
-  
+
 // --- 紙吹雪演出 ---
 function spawnConfetti(){ 
-  const colors=['#f44336','#e91e63','#ffeb3b','#4caf50','#2196f3','#ff9800','#9c27b0','#9c27b0','#ff5722','#00bcd4'];
-  const count = 400; // 紙吹雪の数を増加
-  for(let i=0;i<count;i++){
-    const confetti=document.createElement('div');
-    confetti.className='confetti';
-    confetti.style.backgroundColor = colors[Math.floor(Math.random()*colors.length)];
-    const size = Math.random()*12+6;
+  const colors = [
+    '#f44336','#e91e63','#ffeb3b','#4caf50','#2196f3',
+    '#ff9800','#9c27b0','#ff5722','#00bcd4'
+  ];
+  const count = 400;
+
+  for (let i = 0; i < count; i++) {
+    const confetti = document.createElement('div');
+    confetti.className = 'confetti';
+
+    const size = Math.random() * 12 + 6;
     confetti.style.width = `${size}px`;
     confetti.style.height = `${size}px`;
+    confetti.style.backgroundColor =
+      colors[Math.floor(Math.random() * colors.length)];
 
-    // 初期位置：画面上部のランダムX
     confetti.style.left = Math.random() * window.innerWidth + 'px';
-    confetti.style.top  = '-20px';
+    confetti.style.top = '0px';
 
-    // 飛ぶ距離（左右と下方向）
-    const tx = (Math.random()-0.5) * 400;  // -200 ~ +200 px 左右に拡散
-    const ty = window.innerHeight + Math.random()*200; // 画面下まで落下
+    const tx = (Math.random() - 0.5) * 400;
+    const ty = window.innerHeight + Math.random() * 200;
+
     confetti.style.setProperty('--tx', `${tx}px`);
     confetti.style.setProperty('--ty', `${ty}px`);
-    confetti.style.setProperty('--rotate', `${Math.random()*720}`);
+    confetti.style.setProperty('--rotate', `${Math.random() * 720}`);
 
-    // アニメーション時間ランダム化
-    confetti.style.animationDuration = `${2 + Math.random()*2}s`;
-    confetti.style.opacity = 1;
+    confetti.style.animationDuration = `${2 + Math.random() * 2}s`;
 
     document.body.appendChild(confetti);
-    setTimeout(()=>{ confetti.remove(); }, 5000);
+    setTimeout(() => confetti.remove(), 5000);
   }
 }
 
-// ★SEなし・揺れのみ
+// --- 揺れ演出（SEなし） ---
 function playHitEffect(){
   document.body.classList.add('hit-effect');
-
   setTimeout(() => {
     document.body.classList.remove('hit-effect');
   }, 500);
