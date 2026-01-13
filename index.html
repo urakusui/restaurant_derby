@@ -50,8 +50,12 @@ th { background:#eee; }
     transform: translateY(0) rotate(0deg) scale(1);
     opacity: 1;
   }
+  50% {
+    transform: translateY(-250px) rotate(360deg) scale(1.2);
+    opacity: 0.8;
+  }
   100% {
-    transform: translateY(-500px) rotate(720deg) scale(0.5);
+    transform: translateY(-700px) rotate(1080deg) scale(0.5);
     opacity: 0;
   }
 }
@@ -298,22 +302,22 @@ function showResult(){
 // --- 紙吹雪演出 ---
 function spawnConfetti(){ 
   const colors=['#f44336','#e91e63','#ffeb3b','#4caf50','#2196f3','#ff9800','#9c27b0'];
-  for(let i=0;i<150;i++){
-    const confetti=document.createElement('div');
-    confetti.className='confetti';
-    confetti.style.backgroundColor=colors[Math.floor(Math.random()*colors.length)];
-    const size=Math.random()*10+5;
-    confetti.style.width=`${size}px`;
-    confetti.style.height=`${size}px`;
-    const angle=Math.random()*Math.PI*2;
-    const radius=Math.random()*200+50;
-    confetti.style.left=`50%`;
-    confetti.style.top=`50%`;
-    confetti.style.transform=`translate(-50%, -50%) translate(${Math.cos(angle)*radius}px, ${Math.sin(angle)*radius}px) rotate(${Math.random()*360}deg)`;
-    confetti.style.animationDuration=`${1.5 + Math.random()*0.5}s`;
-    confetti.style.opacity=1;
-    document.body.appendChild(confetti);
-    setTimeout(()=>{ confetti.remove(); }, 2000);
+  for(let i=0;i<300;i++){ // 数を増やす
+  const confetti=document.createElement('div');
+  confetti.className='confetti';
+  confetti.style.backgroundColor=colors[Math.floor(Math.random()*colors.length)];
+  const size=Math.random()*12+6; // 少し大きめ
+  confetti.style.width=`${size}px`;
+  confetti.style.height=`${size}px`;
+  const angle=Math.random()*Math.PI*2; // 0〜360°放射線
+  const radius=Math.random()*400+100; // 半径を大きく
+  confetti.style.left=`50%`;
+  confetti.style.top=`50%`;
+  confetti.style.transform=`translate(-50%, -50%) translate(${Math.cos(angle)*radius}px, ${Math.sin(angle)*radius}px) rotate(${Math.random()*720}deg)`;
+  confetti.style.animationDuration=`${1.5 + Math.random()*1.5}s`; // 長め
+  confetti.style.opacity=1;
+  document.body.appendChild(confetti);
+  setTimeout(()=>{ confetti.remove(); }, 3000); // 少し長く表示
   }
 }
 
