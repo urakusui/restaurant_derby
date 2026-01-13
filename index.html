@@ -307,22 +307,22 @@ function showResult(){
   .join('<br>');
   $('allPredictions').innerHTML = allPredHtml;
 
-  // 的中者判定
+// 的中者判定
 let winners = [...players, ...cpuResults]
   .filter(p => p.prediction.every((v,i)=>v===tempResult[i]));
-
-// ★ここが「的中判定箇所」
-if (winners.length > 0) {
-  playHitEffect();   // 画面揺れ
-  spawnConfetti();   // 紙吹雪（既存）
-}
 
 $('finalWinners').innerText =
   winners.length > 0
     ? `🎉的中者🎉: ${winners.map(p=>p.name).join(', ')}`
     : '';
-  
-  show('screen-ticket');
+
+show('screen-ticket');
+
+// ★画面表示後に演出（ここだけ）
+if (winners.length > 0) {
+  playHitEffect();   // 画面揺れ
+  spawnConfetti();   // 紙吹雪
+}
 
   // 履歴保存
   history.unshift({
