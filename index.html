@@ -288,7 +288,7 @@ function showResult(){
   });
 
   const allPlayers = [...players, ...cpuResults];
-  let allPredHtml = allPlayers.map(p=>`${p.name} : ${p.prediction.map(i=>menus[i].name).join(' → ')}`).join('<br>');
+  let allPredHtml = allPlayers.map(p=>`${p.name} : ${p.prediction.map(i=>menus[i].name).join(' → ')}`)
   .join('<br>');
   $('allPredictions').innerHTML = allPredHtml;
 
