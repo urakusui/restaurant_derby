@@ -47,15 +47,11 @@ th { background:#eee; }
 /* --- 強化版紙吹雪 --- */
 @keyframes confetti-fall-boost {
   0% {
-    transform: translateY(0) rotate(0deg) scale(1);
+    transform: translate(0,0) rotate(0deg) scale(1);
     opacity: 1;
   }
-  50% {
-    transform: translateY(-250px) rotate(360deg) scale(1.2);
-    opacity: 0.8;
-  }
   100% {
-    transform: translateY(-700px) rotate(1080deg) scale(0.5);
+    transform: translate(var(--tx), var(--ty)) rotate(var(--rotate)deg) scale(0.5);
     opacity: 0;
   }
 }
@@ -313,8 +309,14 @@ function spawnConfetti(){
   const radius=Math.random()*400+100; // 半径を大きく
   confetti.style.left=`50%`;
   confetti.style.top=`50%`;
-  confetti.style.transform=`translate(-50%, -50%) translate(${Math.cos(angle)*radius}px, ${Math.sin(angle)*radius}px) rotate(${Math.random()*720}deg)`;
-  confetti.style.animationDuration=`${1.5 + Math.random()*1.5}s`; // 長め
+  const angle = Math.random() * 2 * Math.PI; // 0〜360°
+  const distance = Math.random() * 400 + 100; // 放射線の距離
+  const tx = Math.cos(angle) * distance; // X方向
+  const ty = Math.sin(angle) * distance; // Y方向
+  confetti.style.setProperty('--tx', `${tx}px`);
+  confetti.style.setProperty('--ty', `${ty}px`);
+  confetti.style.setProperty('--rotate', `${Math.random()*720}`);
+  confetti.style.animationDuration=`${1.5 + Math.random()*1.5}s`;  confetti.style.animationDuration=`${1.5 + Math.random()*1.5}s`; // 長め
   confetti.style.opacity=1;
   document.body.appendChild(confetti);
   setTimeout(()=>{ confetti.remove(); }, 3000); // 少し長く表示
